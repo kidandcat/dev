@@ -1,0 +1,127 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"strings"
+
+	"github.com/charmbracelet/bubbles/textarea"
+	"github.com/charmbracelet/bubbles/viewport"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	openai "github.com/sashabaranov/go-openai"
+)
+
+const gap = "\n\n"
+
+type Model struct {
+	viewport viewport.Model
+	messages []string
+	textarea textarea.Model
+}
+
+func initialModel() *Model {
+	ta := textarea.New()
+	ta.Placeholder = "Send a message..."
+	ta.Focus()
+
+	ta.Prompt = "┃ "
+	ta.CharLimit = 280
+
+	ta.SetWidth(30)
+	ta.SetHeight(3)
+
+	// Remove cursor line styling
+	ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
+	ta.ShowLineNumbers = false
+
+	vp := viewport.New(30, 5)
+
+	ta.KeyMap.InsertNewline.SetEnabled(false)
+
+	return &Model{
+		textarea: ta,
+		messages: []string{},
+		viewport: vp,
+	}
+}
+
+func (m *Model) Init() tea.Cmd {
+	return textarea.Blink
+}
+
+func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var (
+		tiCmd tea.Cmd
+		vpCmd tea.Cmd
+	)
+
+	m.textarea, tiCmd = m.textarea.Update(msg)
+	m.viewport, vpCmd = m.viewport.Update(msg)
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.viewport.Width = msg.Width
+		m.textarea.SetWidth(msg.Width)
+		m.viewport.Height = msg.Height - m.textarea.Height() - lipgloss.Height(gap)
+
+		if len(m.messages) > 0 {
+			// Wrap content before setting it.
+			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
+		}
+		m.viewport.GotoBottom()
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyCtrlC, tea.KeyEsc:
+			fmt.Println(m.textarea.Value())
+			return m, tea.Quit
+		case tea.KeyEnter:
+			content := m.textarea.Value()
+			m = m.AppendUser(content)
+			m.textarea.Reset()
+			m.viewport.GotoBottom()
+			go handleChatCompletion(context.TODO(), openai.ChatCompletionMessage{
+				Role:    "user",
+				Content: content,
+			}, m)
+		}
+	}
+
+	return m, tea.Batch(tiCmd, vpCmd)
+}
+
+func (m *Model) AppendUser(msg string) *Model {
+	userStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
+	m.messages = append(m.messages, userStyle.Render("You: ")+msg)
+	m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
+	m.viewport.GotoBottom()
+	return m
+}
+
+func (m *Model) AppendAssistant(msg string) *Model {
+	assistantStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
+	m.messages = append(m.messages, assistantStyle.Render("Assistant: ")+msg)
+	m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
+	m.viewport.GotoBottom()
+	return m
+}
+
+func (m *Model) AppendError(err error) *Model {
+	errorStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("9")). // Red color
+		Bold(true)
+	msg := errorStyle.Render(fmt.Sprintf("[ERROR] %v", err))
+	m.messages = append(m.messages, msg)
+	m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
+	m.viewport.GotoBottom()
+	return m
+}
+
+func (m *Model) View() string {
+	return fmt.Sprintf(
+		"%s%s%s",
+		m.viewport.View(),
+		gap,
+		m.textarea.View(),
+	)
+}
