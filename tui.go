@@ -14,6 +14,8 @@ import (
 
 const gap = "\n\n"
 
+var workingDirectory string
+
 type Model struct {
 	viewport viewport.Model
 	messages []string
@@ -59,6 +61,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.textarea, tiCmd = m.textarea.Update(msg)
 	m.viewport, vpCmd = m.viewport.Update(msg)
 
+	m.textarea.Prompt = "┃ "
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.viewport.Width = msg.Width
@@ -93,6 +97,14 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *Model) AppendUser(msg string) *Model {
 	userStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
 	m.messages = append(m.messages, userStyle.Render("You: ")+msg)
+	m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
+	m.viewport.GotoBottom()
+	return m
+}
+
+func (m *Model) AppendInfo(msg string) *Model {
+	infoStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("3"))
+	m.messages = append(m.messages, infoStyle.Render("Info: ")+msg)
 	m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 	m.viewport.GotoBottom()
 	return m

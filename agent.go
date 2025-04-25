@@ -45,15 +45,16 @@ func handleChatCompletion(ctx context.Context, msg openai.ChatCompletionMessage,
 
 	for _, toolCall := range response.Choices[0].Message.ToolCalls {
 		if toolCall == response.Choices[0].Message.ToolCalls[len(response.Choices[0].Message.ToolCalls)-1] {
-			handleChatCompletion(ctx, handleToolCall(ctx, toolCall), model)
+			handleChatCompletion(ctx, handleToolCall(ctx, toolCall, model), model)
 			return
 		}
-		messages = append(messages, handleToolCall(ctx, toolCall))
+		messages = append(messages, handleToolCall(ctx, toolCall, model))
 	}
 }
 
-func handleToolCall(ctx context.Context, toolCall openai.ToolCall) openai.ChatCompletionMessage {
+func handleToolCall(ctx context.Context, toolCall openai.ToolCall, model *Model) openai.ChatCompletionMessage {
 	res := ToolCall(ctx, toolCall)
+	model.AppendInfo(fmt.Sprintf("%s(%s) -> %s", toolCall.Function.Name, toolCall.Function.Arguments, res))
 	return openai.ChatCompletionMessage{
 		Role:       openai.ChatMessageRoleTool,
 		Content:    res,
