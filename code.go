@@ -15,8 +15,8 @@ func Lint(path string) string {
 	switch extension {
 	case ".go":
 		command := exec.Command("go", "vet", dir)
-		output, err := command.Output()
-		if err != nil {
+		output, err := command.CombinedOutput()
+		if err != nil && len(output) == 0 {
 			return fmt.Sprintf("Error formatting go file: %s", err)
 		}
 		return string(output)
