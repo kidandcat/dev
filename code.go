@@ -1,0 +1,25 @@
+package main
+
+import (
+	"fmt"
+	"os/exec"
+	"path/filepath"
+)
+
+func Lint(path string) string {
+	path = Path(path)
+
+	extension := filepath.Ext(path)
+
+	switch extension {
+	case ".go":
+		command := exec.Command("go", "fmt", path)
+		output, err := command.Output()
+		if err != nil {
+			return fmt.Sprintf("Error formatting go file: %s", err)
+		}
+		return string(output)
+	}
+
+	return "Linting not supported for this file type"
+}

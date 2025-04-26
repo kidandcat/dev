@@ -99,6 +99,27 @@ func GetTools() []openai.Tool {
 				},
 			},
 		},
+		{
+			Type: openai.ToolTypeFunction,
+			Function: &openai.FunctionDefinition{
+				Name:        "write_file",
+				Description: "Write to a file",
+				Parameters: jsonschema.Definition{
+					Type: jsonschema.Object,
+					Properties: map[string]jsonschema.Definition{
+						"path": {
+							Type:        jsonschema.String,
+							Description: "The path to write the file to, relative to the working directory",
+						},
+						"content": {
+							Type:        jsonschema.String,
+							Description: "The content to write to the file",
+						},
+					},
+					Required: []string{"path", "content"},
+				},
+			},
+		},
 	}
 }
 
@@ -149,6 +170,17 @@ func ToolCall(ctx context.Context, toolCall openai.ToolCall) string {
 		}
 		content := ReadFile(arguments.Path, arguments.Offset, arguments.Length)
 		return fmt.Sprintf("Content:\n%s", content)
+	case "write_file":
+		var arguments struct {
+			Path    string `json:"path"`
+			Content string `json:"content"`
+		}
+		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
+		if err != nil {
+			return fmt.Sprintf("Error unmarshalling path: %s", err)
+		}
+		WriteFile(arguments.Path, arguments.Content, 0)
+		return fmt.Sprintf("Wrote to file: %s", arguments.Path)
 	}
 	return fmt.Sprintf("Unknown tool call: %s", toolCall.Function.Name)
 }

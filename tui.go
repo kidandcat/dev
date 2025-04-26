@@ -37,9 +37,12 @@ func initialModel() *Model {
 	ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
 	ta.ShowLineNumbers = false
 
-	vp := viewport.New(30, 5)
-
 	ta.KeyMap.InsertNewline.SetEnabled(false)
+
+	vp := viewport.New(30, 5)
+	vp.Style = lipgloss.NewStyle().
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("62"))
 
 	return &Model{
 		textarea: ta,
@@ -68,10 +71,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.Width = msg.Width
 		m.textarea.SetWidth(msg.Width)
 		m.viewport.Height = msg.Height - m.textarea.Height() - lipgloss.Height(gap)
-
 		if len(m.messages) > 0 {
 			// Wrap content before setting it.
-			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
+			m.viewport.SetContent(strings.Join(m.messages, "\n"))
 		}
 		m.viewport.GotoBottom()
 	case tea.KeyMsg:
@@ -97,7 +99,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *Model) AppendUser(msg string) *Model {
 	userStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
 	m.messages = append(m.messages, userStyle.Render("You: ")+msg)
-	m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
+	m.viewport.SetContent(strings.Join(m.messages, "\n"))
 	m.viewport.GotoBottom()
 	return m
 }
@@ -105,7 +107,7 @@ func (m *Model) AppendUser(msg string) *Model {
 func (m *Model) AppendInfo(msg string) *Model {
 	infoStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("3"))
 	m.messages = append(m.messages, infoStyle.Render("Info: ")+msg)
-	m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
+	m.viewport.SetContent(strings.Join(m.messages, "\n"))
 	m.viewport.GotoBottom()
 	return m
 }
@@ -113,7 +115,7 @@ func (m *Model) AppendInfo(msg string) *Model {
 func (m *Model) AppendAssistant(msg string) *Model {
 	assistantStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
 	m.messages = append(m.messages, assistantStyle.Render("Assistant: ")+msg)
-	m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
+	m.viewport.SetContent(strings.Join(m.messages, "\n"))
 	m.viewport.GotoBottom()
 	return m
 }
@@ -124,7 +126,7 @@ func (m *Model) AppendError(err error) *Model {
 		Bold(true)
 	msg := errorStyle.Render(fmt.Sprintf("[ERROR] %v", err))
 	m.messages = append(m.messages, msg)
-	m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
+	m.viewport.SetContent(strings.Join(m.messages, "\n"))
 	m.viewport.GotoBottom()
 	return m
 }

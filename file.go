@@ -12,14 +12,7 @@ func ListDirectory(path string, depth int) []string {
 		return []string{}
 	}
 
-	if path == "." || path == "" {
-		path = workingDirectory
-	}
-
-	// if relative path, convert to absolute path
-	if !filepath.IsAbs(path) {
-		path = filepath.Join(workingDirectory, path)
-	}
+	path = Path(path)
 
 	files, err := os.ReadDir(path)
 	if err != nil {
@@ -51,6 +44,8 @@ func ReadFile(path string, offset int, length int) string {
 		length = 1000
 	}
 
+	path = Path(path)
+
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return ""
@@ -77,8 +72,24 @@ func WriteFile(path string, content string, offset int) string {
 		offset = len(lines)
 	}
 
+	path = Path(path)
+
 	os.WriteFile(path, []byte(strings.Join(lines[:offset], "\n")), 0644)
 	os.WriteFile(path, []byte(strings.Join(lines[offset:], "\n")), 0644)
 
-	return fmt.Sprintf("Wrote %d lines to %s", len(lines), path)
+	res := fmt.Sprintf("Wrote %d lines to %s", len(lines), path)
+	lint := Lint(path)
+
+	return res + "\n" + lint
+}
+
+func Path(path string) string {
+	if path == "." || path == "" {
+		path = workingDirectory
+	}
+	// if relative path, convert to absolute path
+	if !filepath.IsAbs(path) {
+		path = filepath.Join(workingDirectory, path)
+	}
+	return path
 }
