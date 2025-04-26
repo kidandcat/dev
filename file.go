@@ -7,10 +7,48 @@ import (
 	"strings"
 )
 
+type Gitignore struct {
+	Patterns []string
+}
+
+// Initialize ignore patterns from .gitignore
+func NewGitignore(path string) *Gitignore {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		// If error reading .gitignore, assume no ignore patterns
+		return &Gitignore{Patterns: []string{}}
+	}
+	lines := strings.Split(string(content), "\n")
+	var ignorePatterns []string
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// Skip empty lines and comments
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		ignorePatterns = append(ignorePatterns, line)
+	}
+	return &Gitignore{Patterns: ignorePatterns}
+}
+
+// Check if a path matches any ignore pattern
+func (g *Gitignore) IsIgnored(path string) bool {
+	for _, pattern := range g.Patterns {
+		match, err := filepath.Match(pattern, filepath.Base(path))
+		if err == nil && match {
+			return true
+		}
+	}
+	return false
+}
+
 func ListDirectory(path string, depth int) []string {
 	if depth < 0 {
 		return []string{}
 	}
+
+	// Initialize ignore patterns if not already done
+	ignorePatterns := NewGitignore(path)
 
 	path = Path(path)
 
@@ -22,6 +60,16 @@ func ListDirectory(path string, depth int) []string {
 	var fileNames []string
 	for _, file := range files {
 		relativePath := file.Name()
+		// Skip ignored files
+		if ignorePatterns.IsIgnored(relativePath) {
+			continue
+		}
+
+		// Exclude hidden files and directories (starting with '.')
+		if strings.HasPrefix(relativePath, ".") {
+			continue
+		}
+
 		fileNames = append(fileNames, relativePath)
 
 		if file.IsDir() && depth > 0 {
@@ -32,6 +80,7 @@ func ListDirectory(path string, depth int) []string {
 			}
 		}
 	}
+
 	return fileNames
 }
 
