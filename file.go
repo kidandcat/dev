@@ -142,10 +142,16 @@ func WriteFile(path string, content string, offset int, insert bool) string {
 		return fmt.Sprintf("Error writing to file: %v", err)
 	}
 
-	res := fmt.Sprintf("Wrote %d lines to %s", len(finalLines), path)
+	var newContent string
+	if offset+len(newLines) < 1000 {
+		newContent = ReadFile(path, 0, 1000)
+	} else {
+		newContent = ReadFile(path, offset-len(newLines), len(newLines))
+	}
+	res := fmt.Sprintf("%s:\n%s", path, newContent)
 	lint := Lint(path)
 
-	return res + "\n" + lint
+	return res + "\n\n---\n\n" + lint
 }
 
 func Path(path string) string {
