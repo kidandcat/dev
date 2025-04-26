@@ -69,6 +69,16 @@ func ReadFile(path string, offset int, length int) string {
 	return strings.Join(lines[offset:offset+length], "\n")
 }
 
-func WriteFile(path string, content string) {
-	os.WriteFile(path, []byte(content), 0644)
+func WriteFile(path string, content string, offset int) string {
+	content = strings.ReplaceAll(content, "\r", "")
+	lines := strings.Split(content, "\n")
+
+	if offset > len(lines) {
+		offset = len(lines)
+	}
+
+	os.WriteFile(path, []byte(strings.Join(lines[:offset], "\n")), 0644)
+	os.WriteFile(path, []byte(strings.Join(lines[offset:], "\n")), 0644)
+
+	return fmt.Sprintf("Wrote %d lines to %s", len(lines), path)
 }
