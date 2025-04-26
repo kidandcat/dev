@@ -149,7 +149,9 @@ func WriteFile(path string, content string, offset int, insert bool) string {
 		newContent = ReadFile(path, offset-len(newLines), len(newLines))
 	}
 
-	return fmt.Sprintf("%s:\n%s", path, newContent)
+	lint := Lint(path)
+
+	return fmt.Sprintf("Path: %s\n\nNew content:\n%s\n\n---\n\nLinter results:\n%s", path, newContent, lint)
 }
 
 func Path(path string) string {
