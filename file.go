@@ -113,20 +113,36 @@ func ReadFile(path string, offset int, length int) string {
 	return strings.Join(lines[offset:offset+length], "\n")
 }
 
-func WriteFile(path string, content string, offset int) string {
+func WriteFile(path string, content string, offset int, insert bool) string {
 	content = strings.ReplaceAll(content, "\r", "")
-	lines := strings.Split(content, "\n")
-
-	if offset > len(lines) {
-		offset = len(lines)
-	}
-
+	newLines := strings.Split(content, "\n")
 	path = Path(path)
 
-	os.WriteFile(path, []byte(strings.Join(lines[:offset], "\n")), 0644)
-	os.WriteFile(path, []byte(strings.Join(lines[offset:], "\n")), 0644)
+	var finalLines []string
+	if insert {
+		// Read existing content if file exists
+		existingContent, err := os.ReadFile(path)
+		if err == nil {
+			existingLines := strings.Split(string(existingContent), "\n")
+			if offset > len(existingLines) {
+				offset = len(existingLines)
+			}
+			// Combine existing lines before offset, new lines, and existing lines after offset
+			finalLines = append(existingLines[:offset], newLines...)
+			finalLines = append(finalLines, existingLines[offset:]...)
+		} else {
+			finalLines = newLines
+		}
+	} else {
+		finalLines = newLines
+	}
 
-	res := fmt.Sprintf("Wrote %d lines to %s", len(lines), path)
+	err := os.WriteFile(path, []byte(strings.Join(finalLines, "\n")), 0644)
+	if err != nil {
+		return fmt.Sprintf("Error writing to file: %v", err)
+	}
+
+	res := fmt.Sprintf("Wrote %d lines to %s", len(finalLines), path)
 	lint := Lint(path)
 
 	return res + "\n" + lint

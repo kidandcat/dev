@@ -115,8 +115,12 @@ func GetTools() []openai.Tool {
 							Type:        jsonschema.String,
 							Description: "The content to write to the file",
 						},
+						"insert": {
+							Type:        jsonschema.Boolean,
+							Description: "Whether to insert the content into the file, or overwrite the file starting at the offset",
+						},
 					},
-					Required: []string{"path", "content"},
+					Required: []string{"path", "content", "insert"},
 				},
 			},
 		},
@@ -174,12 +178,13 @@ func ToolCall(ctx context.Context, toolCall openai.ToolCall) string {
 		var arguments struct {
 			Path    string `json:"path"`
 			Content string `json:"content"`
+			Insert  bool   `json:"insert"`
 		}
 		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
 		if err != nil {
 			return fmt.Sprintf("Error unmarshalling path: %s", err)
 		}
-		WriteFile(arguments.Path, arguments.Content, 0)
+		WriteFile(arguments.Path, arguments.Content, 0, arguments.Insert)
 		return fmt.Sprintf("Wrote to file: %s", arguments.Path)
 	}
 	return fmt.Sprintf("Unknown tool call: %s", toolCall.Function.Name)
