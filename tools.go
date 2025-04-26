@@ -156,8 +156,7 @@ func ToolCall(ctx context.Context, toolCall openai.ToolCall) string {
 		if err != nil {
 			return fmt.Sprintf("Error unmarshalling url: %s", err)
 		}
-		source := WebSource(arguments.URL, arguments.Headers, arguments.Cookies)
-		return fmt.Sprintf("Source:\n%s", source)
+		return WebSource(arguments.URL, arguments.Headers, arguments.Cookies)
 	case "web_page_search":
 		var arguments struct {
 			Query string `json:"query"`
@@ -166,8 +165,7 @@ func ToolCall(ctx context.Context, toolCall openai.ToolCall) string {
 		if err != nil {
 			return fmt.Sprintf("Error unmarshalling query: %s", err)
 		}
-		source := WebSearch(arguments.Query)
-		return fmt.Sprintf("Source:\n%+v", source)
+		return WebSearch(arguments.Query)
 	case "list_directory":
 		var arguments struct {
 			Path  string `json:"path"`
@@ -177,8 +175,7 @@ func ToolCall(ctx context.Context, toolCall openai.ToolCall) string {
 		if err != nil {
 			return fmt.Sprintf("Error unmarshalling path: %s", err)
 		}
-		files := ListDirectory(arguments.Path, arguments.Depth)
-		return fmt.Sprintf("Files:\n%+v", files)
+		return ListDirectory(arguments.Path, arguments.Depth)
 	case "read_file":
 		var arguments struct {
 			Path   string `json:"path"`
@@ -189,8 +186,7 @@ func ToolCall(ctx context.Context, toolCall openai.ToolCall) string {
 		if err != nil {
 			return fmt.Sprintf("Error unmarshalling path: %s", err)
 		}
-		content := ReadFile(arguments.Path, arguments.Offset, arguments.Length)
-		return fmt.Sprintf("Content:\n%s", content)
+		return ReadFile(arguments.Path, arguments.Offset, arguments.Length)
 	case "write_file":
 		var arguments struct {
 			Path    string `json:"path"`
@@ -201,8 +197,7 @@ func ToolCall(ctx context.Context, toolCall openai.ToolCall) string {
 		if err != nil {
 			return fmt.Sprintf("Error unmarshalling path: %s", err)
 		}
-		WriteFile(arguments.Path, arguments.Content, 0, arguments.Insert)
-		return fmt.Sprintf("Wrote to file: %s", arguments.Path)
+		return WriteFile(arguments.Path, arguments.Content, 0, arguments.Insert)
 	case "lint_file":
 		var arguments struct {
 			Path string `json:"path"`
@@ -211,8 +206,7 @@ func ToolCall(ctx context.Context, toolCall openai.ToolCall) string {
 		if err != nil {
 			return fmt.Sprintf("Error unmarshalling path: %s", err)
 		}
-		lint := Lint(arguments.Path)
-		return fmt.Sprintf("Lint:\n%s", lint)
+		return Lint(arguments.Path)
 	}
 	return fmt.Sprintf("Unknown tool call: %s", toolCall.Function.Name)
 }

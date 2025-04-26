@@ -42,9 +42,9 @@ func (g *Gitignore) IsIgnored(path string) bool {
 	return false
 }
 
-func ListDirectory(path string, depth int) []string {
+func ListDirectory(path string, depth int) string {
 	if depth < 0 {
-		return []string{}
+		return ""
 	}
 
 	// Initialize ignore patterns if not already done
@@ -54,7 +54,7 @@ func ListDirectory(path string, depth int) []string {
 
 	files, err := os.ReadDir(path)
 	if err != nil {
-		return []string{}
+		return ""
 	}
 
 	var fileNames []string
@@ -76,12 +76,12 @@ func ListDirectory(path string, depth int) []string {
 			subPath := filepath.Join(path, file.Name())
 			subFiles := ListDirectory(subPath, depth-1)
 			for _, subFile := range subFiles {
-				fileNames = append(fileNames, filepath.Join(relativePath, subFile))
+				fileNames = append(fileNames, filepath.Join(relativePath, string(subFile)))
 			}
 		}
 	}
 
-	return fileNames
+	return strings.Join(fileNames, "\n")
 }
 
 func ReadFile(path string, offset int, length int) string {

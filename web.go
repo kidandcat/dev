@@ -56,7 +56,7 @@ type WebSearchResult struct {
 	Snippet  string
 }
 
-func WebSearch(query string) []WebSearchResult {
+func WebSearch(query string) string {
 	c := colly.NewCollector()
 	results := []WebSearchResult{}
 
@@ -74,5 +74,5 @@ func WebSearch(query string) []WebSearchResult {
 		fmt.Println("Error:", err)
 	}
 
-	return results
+	return fmt.Sprintf("%+v", results)
 }
