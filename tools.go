@@ -124,6 +124,23 @@ func GetTools() []openai.Tool {
 				},
 			},
 		},
+		{
+			Type: openai.ToolTypeFunction,
+			Function: &openai.FunctionDefinition{
+				Name:        "lint_file",
+				Description: "Lint a file",
+				Parameters: jsonschema.Definition{
+					Type: jsonschema.Object,
+					Properties: map[string]jsonschema.Definition{
+						"path": {
+							Type:        jsonschema.String,
+							Description: "The path to lint the file from, relative to the working directory",
+						},
+					},
+					Required: []string{"path"},
+				},
+			},
+		},
 	}
 }
 
@@ -186,6 +203,16 @@ func ToolCall(ctx context.Context, toolCall openai.ToolCall) string {
 		}
 		WriteFile(arguments.Path, arguments.Content, 0, arguments.Insert)
 		return fmt.Sprintf("Wrote to file: %s", arguments.Path)
+	case "lint_file":
+		var arguments struct {
+			Path string `json:"path"`
+		}
+		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
+		if err != nil {
+			return fmt.Sprintf("Error unmarshalling path: %s", err)
+		}
+		lint := Lint(arguments.Path)
+		return fmt.Sprintf("Lint:\n%s", lint)
 	}
 	return fmt.Sprintf("Unknown tool call: %s", toolCall.Function.Name)
 }

@@ -25,6 +25,8 @@ func handleChatCompletion(ctx context.Context, msg openai.ChatCompletionMessage,
 					You have tools to analyze the local codebase, search the web, and more.
 
 					Date and time: %s
+
+					After you have written code, always use the lint_file tool to check if the code is correct.
 					`, time.Now().Format(time.RFC3339)),
 				},
 			}, messages...),
