@@ -10,10 +10,11 @@ func Lint(path string) string {
 	path = Path(path)
 
 	extension := filepath.Ext(path)
+	dir := filepath.Dir(path)
 
 	switch extension {
 	case ".go":
-		command := exec.Command("go", "fmt", path)
+		command := exec.Command("go", "vet", dir)
 		output, err := command.Output()
 		if err != nil {
 			return fmt.Sprintf("Error formatting go file: %s", err)
