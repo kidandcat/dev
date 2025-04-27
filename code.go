@@ -2,11 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
-
-	openai "github.com/sashabaranov/go-openai"
 )
 
 func Lint(path string) string {
@@ -26,24 +23,4 @@ func Lint(path string) string {
 	}
 
 	return "Linting not supported for this file type"
-}
-
-func Plan(feature string, viewModel *Model) string {
-	handleChatCompletion(MODEL_GPT41, openai.ChatCompletionMessage{
-		Role: "user",
-		Content: fmt.Sprintf(`Create a plan to develop the feature provided by the user.
-		You should create a list of steps to develop the feature.
-		The steps must be markdown unchecked checkboxes.
-		Save the plan in a file called PLAN.md
-		Feature: %s
-		`, feature),
-	}, viewModel, true)
-	if _, err := os.Stat("PLAN.md"); os.IsNotExist(err) {
-		return fmt.Sprintf("Plan not created: %s", err)
-	}
-	plan, err := os.ReadFile("PLAN.md")
-	if err != nil {
-		return fmt.Sprintf("Plan not created: %s", err)
-	}
-	return string(plan)
 }

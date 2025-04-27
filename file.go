@@ -154,6 +154,14 @@ func WriteFile(path string, content string, offset int, insert bool) string {
 	return fmt.Sprintf("Path: %s\n\nNew content:\n%s\n\n---\n\nLinter results:\n%s", path, newContent, lint)
 }
 
+func MkDir(path string) string {
+	err := os.MkdirAll(path, 0755)
+	if err != nil {
+		return fmt.Sprintf("Error creating directory: %v", err)
+	}
+	return fmt.Sprintf("Directory created: %s", path)
+}
+
 func Path(path string) string {
 	if path == "." || path == "" {
 		path = workingDirectory

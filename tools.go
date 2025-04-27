@@ -126,6 +126,23 @@ func GetTools() []openai.Tool {
 		{
 			Type: openai.ToolTypeFunction,
 			Function: &openai.FunctionDefinition{
+				Name:        "make_directory",
+				Description: "Make a directory",
+				Parameters: jsonschema.Definition{
+					Type: jsonschema.Object,
+					Properties: map[string]jsonschema.Definition{
+						"path": {
+							Type:        jsonschema.String,
+							Description: "The path to make the directory in, relative to the working directory",
+						},
+					},
+					Required: []string{"path"},
+				},
+			},
+		},
+		{
+			Type: openai.ToolTypeFunction,
+			Function: &openai.FunctionDefinition{
 				Name:        "lint_file",
 				Description: "Lint a file",
 				Parameters: jsonschema.Definition{
@@ -137,23 +154,6 @@ func GetTools() []openai.Tool {
 						},
 					},
 					Required: []string{"path"},
-				},
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "plan_task",
-				Description: "Plan a task",
-				Parameters: jsonschema.Definition{
-					Type: jsonschema.Object,
-					Properties: map[string]jsonschema.Definition{
-						"task": {
-							Type:        jsonschema.String,
-							Description: "The task to plan",
-						},
-					},
-					Required: []string{"task"},
 				},
 			},
 		},
@@ -214,6 +214,15 @@ func ToolCall(toolCall openai.ToolCall, viewModel *Model) string {
 			return fmt.Sprintf("Error unmarshalling path: %s", err)
 		}
 		return WriteFile(arguments.Path, arguments.Content, 0, arguments.Insert)
+	case "make_directory":
+		var arguments struct {
+			Path string `json:"path"`
+		}
+		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
+		if err != nil {
+			return fmt.Sprintf("Error unmarshalling path: %s", err)
+		}
+		return MkDir(arguments.Path)
 	case "lint_file":
 		var arguments struct {
 			Path string `json:"path"`
@@ -223,15 +232,6 @@ func ToolCall(toolCall openai.ToolCall, viewModel *Model) string {
 			return fmt.Sprintf("Error unmarshalling path: %s", err)
 		}
 		return Lint(arguments.Path)
-	case "plan_task":
-		var arguments struct {
-			Task string `json:"task"`
-		}
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			return fmt.Sprintf("Error unmarshalling task: %s", err)
-		}
-		return Plan(arguments.Task, viewModel)
 	}
 	return fmt.Sprintf("Unknown tool call: %s", toolCall.Function.Name)
 }

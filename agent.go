@@ -51,7 +51,7 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage, viewMo
 
 	if review {
 		defer func() {
-			handleChatCompletion(MODEL_NANO, openai.ChatCompletionMessage{
+			handleChatCompletion(model, openai.ChatCompletionMessage{
 				Role:    openai.ChatMessageRoleUser,
 				Content: "Run linter to check for code errors",
 			}, viewModel, false)
@@ -60,7 +60,7 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage, viewMo
 
 	for _, toolCall := range response.Choices[0].Message.ToolCalls {
 		if toolCall == response.Choices[0].Message.ToolCalls[len(response.Choices[0].Message.ToolCalls)-1] {
-			handleChatCompletion(MODEL_NANO, handleToolCall(toolCall, viewModel), viewModel, false)
+			handleChatCompletion(model, handleToolCall(toolCall, viewModel), viewModel, false)
 			return
 		}
 		messages = append(messages, handleToolCall(toolCall, viewModel))
