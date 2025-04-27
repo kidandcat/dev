@@ -16,7 +16,7 @@ const (
 
 var messages []openai.ChatCompletionMessage
 
-func handleChatCompletion(model string, msg openai.ChatCompletionMessage, viewModel *Model, review bool) {
+func handleChatCompletion(model string, msg openai.ChatCompletionMessage, viewModel *Model) {
 	messages = append(messages, msg)
 
 	response, err := client.CreateChatCompletion(
@@ -50,18 +50,9 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage, viewMo
 		viewModel.AppendAssistant(response.Choices[0].Message.Content)
 	}
 
-	if review {
-		defer func() {
-			handleChatCompletion(model, openai.ChatCompletionMessage{
-				Role:    openai.ChatMessageRoleUser,
-				Content: "Run linter to check for code errors",
-			}, viewModel, false)
-		}()
-	}
-
 	for _, toolCall := range response.Choices[0].Message.ToolCalls {
 		if toolCall == response.Choices[0].Message.ToolCalls[len(response.Choices[0].Message.ToolCalls)-1] {
-			handleChatCompletion(model, handleToolCall(toolCall, viewModel), viewModel, false)
+			handleChatCompletion(model, handleToolCall(toolCall, viewModel), viewModel)
 			return
 		}
 		messages = append(messages, handleToolCall(toolCall, viewModel))

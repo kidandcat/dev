@@ -88,7 +88,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			go handleChatCompletion(MODEL_NANO, openai.ChatCompletionMessage{
 				Role:    "user",
 				Content: content,
-			}, m, true)
+			}, m)
 		}
 	}
 
