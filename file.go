@@ -131,6 +131,10 @@ func WriteFile(path string, content string) string {
 
 	lint := Lint(path)
 
+	if strings.Contains(lint, "no Go files") {
+		lint = ""
+	}
+
 	return fmt.Sprintf("Path: %s\n\nNew content:\n%s\n\n---\n\nLinter results:\n%s", path, content, lint)
 }
 
