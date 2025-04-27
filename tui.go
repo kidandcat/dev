@@ -19,9 +19,10 @@ type Model struct {
 	viewport viewport.Model
 	messages []string
 	textarea textarea.Model
+	aiModel  string
 }
 
-func initialModel() *Model {
+func initialModel(cheap bool) *Model {
 	ta := textarea.New()
 	ta.Placeholder = "Send a message..."
 	ta.Focus()
@@ -47,6 +48,7 @@ func initialModel() *Model {
 		textarea: ta,
 		messages: []string{},
 		viewport: vp,
+		aiModel:  MODEL_GPT41,
 	}
 }
 
@@ -85,7 +87,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m = m.AppendUser(content)
 			m.textarea.Reset()
 			m.viewport.GotoBottom()
-			go handleChatCompletion(MODEL_GPT41, openai.ChatCompletionMessage{
+			go handleChatCompletion(m.aiModel, openai.ChatCompletionMessage{
 				Role:    "user",
 				Content: content,
 			}, m)
