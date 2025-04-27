@@ -114,12 +114,8 @@ func GetTools() []openai.Tool {
 							Type:        jsonschema.String,
 							Description: "The content to write to the file",
 						},
-						"insert": {
-							Type:        jsonschema.Boolean,
-							Description: "Whether to insert the content into the file, or overwrite the file starting at the offset",
-						},
 					},
-					Required: []string{"path", "content", "insert"},
+					Required: []string{"path", "content"},
 				},
 			},
 		},
@@ -207,13 +203,12 @@ func ToolCall(toolCall openai.ToolCall, viewModel *Model) string {
 		var arguments struct {
 			Path    string `json:"path"`
 			Content string `json:"content"`
-			Insert  bool   `json:"insert"`
 		}
 		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
 		if err != nil {
 			return fmt.Sprintf("Error unmarshalling path: %s", err)
 		}
-		return WriteFile(arguments.Path, arguments.Content, 0, arguments.Insert)
+		return WriteFile(arguments.Path, arguments.Content)
 	case "make_directory":
 		var arguments struct {
 			Path string `json:"path"`

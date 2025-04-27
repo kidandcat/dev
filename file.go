@@ -113,45 +113,17 @@ func ReadFile(path string, offset int, length int) string {
 	return strings.Join(lines[offset:offset+length], "\n")
 }
 
-func WriteFile(path string, content string, offset int, insert bool) string {
-	content = strings.ReplaceAll(content, "\r", "")
-	newLines := strings.Split(content, "\n")
+func WriteFile(path string, content string) string {
 	path = Path(path)
 
-	var finalLines []string
-	if insert {
-		// Read existing content if file exists
-		existingContent, err := os.ReadFile(path)
-		if err == nil {
-			existingLines := strings.Split(string(existingContent), "\n")
-			if offset > len(existingLines) {
-				offset = len(existingLines)
-			}
-			// Combine existing lines before offset, new lines, and existing lines after offset
-			finalLines = append(existingLines[:offset], newLines...)
-			finalLines = append(finalLines, existingLines[offset:]...)
-		} else {
-			finalLines = newLines
-		}
-	} else {
-		finalLines = newLines
-	}
-
-	err := os.WriteFile(path, []byte(strings.Join(finalLines, "\n")), 0644)
+	err := os.WriteFile(path, []byte(content), 0644)
 	if err != nil {
 		return fmt.Sprintf("Error writing to file: %v", err)
 	}
 
-	var newContent string
-	if offset+len(newLines) < 1000 {
-		newContent = ReadFile(path, 0, 1000)
-	} else {
-		newContent = ReadFile(path, offset-len(newLines), len(newLines))
-	}
-
 	lint := Lint(path)
 
-	return fmt.Sprintf("Path: %s\n\nNew content:\n%s\n\n---\n\nLinter results:\n%s", path, newContent, lint)
+	return fmt.Sprintf("Path: %s\n\nNew content:\n%s\n\n---\n\nLinter results:\n%s", path, content, lint)
 }
 
 func MkDir(path string) string {
