@@ -29,7 +29,8 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage, viewMo
 					Content: fmt.Sprintf(`
 					You are an autonomous programmer agent, which can write code, fix bugs, and implement features.
 					You have tools to analyze the local codebase, search the web, and more.
-					Do not ask follow up questions.
+
+					Avoid ending your responses with questions or phrases that suggest I should ask for further assistance.
 
 					Date and time: %s
 					`, time.Now().Format(time.RFC3339)),

@@ -98,7 +98,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *Model) AppendUser(msg string) *Model {
 	userStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
 	m.messages = append(m.messages, userStyle.Render("You: ")+msg)
-	m.viewport.Style = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("5"))
+	// Set the border color to the assistant color
+	m.viewport.Style = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("2"))
 	m.viewport.SetContent(strings.Join(m.messages, "\n"))
 	m.viewport.GotoBottom()
 	return m
@@ -107,6 +108,7 @@ func (m *Model) AppendUser(msg string) *Model {
 func (m *Model) AppendInfo(msg string) *Model {
 	infoStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("3"))
 	m.messages = append(m.messages, infoStyle.Render("Info: ")+msg)
+	// Set the border color to the info color
 	m.viewport.Style = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("3"))
 	m.viewport.SetContent(strings.Join(m.messages, "\n"))
 	m.viewport.GotoBottom()
@@ -116,7 +118,8 @@ func (m *Model) AppendInfo(msg string) *Model {
 func (m *Model) AppendAssistant(msg string) *Model {
 	assistantStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
 	m.messages = append(m.messages, assistantStyle.Render("Assistant: ")+msg)
-	m.viewport.Style = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("2"))
+	// Set the border color to the user color
+	m.viewport.Style = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("5"))
 	m.viewport.SetContent(strings.Join(m.messages, "\n"))
 	m.viewport.GotoBottom()
 	return m

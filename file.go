@@ -135,6 +135,8 @@ func WriteFile(path string, content string) string {
 }
 
 func MkDir(path string) string {
+	path = Path(path)
+
 	err := os.MkdirAll(path, 0755)
 	if err != nil {
 		return fmt.Sprintf("Error creating directory: %v", err)
