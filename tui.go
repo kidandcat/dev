@@ -28,7 +28,12 @@ func (m *Model) Start() {
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("You: ")
-		content, _ := reader.ReadString('\n')
+		content, err := reader.ReadString('\n')
+		if err != nil {
+			// Handle error, e.g., log it and break the loop
+			fmt.Println("Error reading input:", err)
+			break
+		}
 		content = strings.TrimSpace(content)
 		m = m.AppendUser(content)
 		handleChatCompletion(m.aiModel, openai.ChatCompletionMessage{
@@ -40,19 +45,25 @@ func (m *Model) Start() {
 
 func (m *Model) AppendUser(msg string) *Model {
 	userStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
-	m.messages = append(m.messages, userStyle.Render("You: ")+msg)
+	msg = userStyle.Render("You: " + msg)
+	m.messages = append(m.messages, msg)
+	fmt.Println(msg)
 	return m
 }
 
 func (m *Model) AppendInfo(msg string) *Model {
 	infoStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("3"))
-	m.messages = append(m.messages, infoStyle.Render("Info: ")+msg)
+	msg = infoStyle.Render("Info: " + msg)
+	m.messages = append(m.messages, msg)
+	fmt.Println(msg)
 	return m
 }
 
 func (m *Model) AppendAssistant(msg string) *Model {
 	assistantStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
-	m.messages = append(m.messages, assistantStyle.Render("Assistant: ")+msg)
+	msg = assistantStyle.Render("Assistant: " + msg)
+	m.messages = append(m.messages, msg)
+	fmt.Println(msg)
 	return m
 }
 
@@ -63,5 +74,6 @@ func (m *Model) AppendError(err error) *Model {
 
 	msg := errorStyle.Render(fmt.Sprintf("[ERROR] %v", err))
 	m.messages = append(m.messages, msg)
+	fmt.Println(msg)
 	return m
 }
