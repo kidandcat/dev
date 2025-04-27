@@ -30,9 +30,8 @@ func (m *Model) Start() {
 		fmt.Print("You: ")
 		content, err := reader.ReadString('\n')
 		if err != nil {
-			// Handle error, e.g., log it and break the loop
-			fmt.Println("Error reading input:", err)
-			break
+			// Panic on unrecoverable error
+			panic(fmt.Sprintf("Error reading input: %v", err))
 		}
 		content = strings.TrimSpace(content)
 		m = m.AppendUser(content)
