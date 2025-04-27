@@ -222,6 +222,13 @@ func TestReadFile(t *testing.T) {
 			length: 1001,
 			want:   "Cannot read more than 1000 lines",
 		},
+		{
+			name:   "read non-existent file",
+			path:   "testdata/nonexistent.txt",
+			offset: 0,
+			length: 1,
+			want:   "Error reading file: open " + filepath.Join(workingDirectory, "testdata/nonexistent.txt") + ": no such file or directory",
+		},
 	}
 
 	for _, tt := range tests {

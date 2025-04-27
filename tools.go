@@ -66,7 +66,7 @@ func GetTools() []openai.Tool {
 						},
 						"depth": {
 							Type:        jsonschema.Integer,
-							Description: "The depth to list the files in",
+							Description: "The depth of the subdirectories to list",
 						},
 					},
 					Required: []string{"path", "depth"},
@@ -87,11 +87,11 @@ func GetTools() []openai.Tool {
 						},
 						"offset": {
 							Type:        jsonschema.Integer,
-							Description: "The offset to start reading the file from",
+							Description: "The line to start reading the file from",
 						},
 						"length": {
 							Type:        jsonschema.Integer,
-							Description: "The length of the file to read, 0 for all",
+							Description: "The number of lines to read",
 						},
 					},
 					Required: []string{"path", "offset", "length"},
