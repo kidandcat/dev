@@ -39,11 +39,11 @@ func Plan(feature string, viewModel *Model) string {
 		`, feature),
 	}, viewModel, true)
 	if _, err := os.Stat("PLAN.md"); os.IsNotExist(err) {
-		return "Plan not created"
+		return fmt.Sprintf("Plan not created: %s", err)
 	}
 	plan, err := os.ReadFile("PLAN.md")
 	if err != nil {
-		return "Plan not created"
+		return fmt.Sprintf("Plan not created: %s", err)
 	}
 	return string(plan)
 }
