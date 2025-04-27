@@ -101,7 +101,7 @@ func ReadFile(path string, offset int, length int) string {
 
 	content, err := os.ReadFile(path)
 	if err != nil {
-		return ""
+		return fmt.Sprintf("Error reading file: %v", err)
 	}
 	text := string(content)
 	lines := strings.Split(text, "\n")

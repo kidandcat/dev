@@ -62,6 +62,9 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage, viewMo
 func handleToolCall(toolCall openai.ToolCall, viewModel *Model) openai.ChatCompletionMessage {
 	res := ToolCall(toolCall, viewModel)
 	viewModel.AppendInfo(fmt.Sprintf("%s(%s) -> %s", toolCall.Function.Name, toolCall.Function.Arguments, res))
+	if res == "" {
+		panic(fmt.Sprintf("Tool call %s(%s) returned empty string", toolCall.Function.Name, toolCall.Function.Arguments))
+	}
 	return openai.ChatCompletionMessage{
 		Role:       openai.ChatMessageRoleTool,
 		Content:    res,
