@@ -153,6 +153,23 @@ func GetTools() []openai.Tool {
 				},
 			},
 		},
+		{
+			Type: openai.ToolTypeFunction,
+			Function: &openai.FunctionDefinition{
+				Name:        "search_text",
+				Description: "Search for text in the working directory",
+				Parameters: jsonschema.Definition{
+					Type: jsonschema.Object,
+					Properties: map[string]jsonschema.Definition{
+						"query": {
+							Type:        jsonschema.String,
+							Description: "The query to search for",
+						},
+					},
+					Required: []string{"query"},
+				},
+			},
+		},
 	}
 }
 
@@ -227,6 +244,15 @@ func ToolCall(toolCall openai.ToolCall, viewModel *Model) string {
 			return fmt.Sprintf("Error unmarshalling path: %s", err)
 		}
 		return Lint(arguments.Path)
+	case "search_text":
+		var arguments struct {
+			Query string `json:"query"`
+		}
+		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
+		if err != nil {
+			return fmt.Sprintf("Error unmarshalling query: %s", err)
+		}
+		return SearchText(arguments.Query)
 	}
 	return fmt.Sprintf("Unknown tool call: %s", toolCall.Function.Name)
 }

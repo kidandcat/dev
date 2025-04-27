@@ -161,17 +161,29 @@ func MkDir(path string) string {
 }
 
 func SearchText(query string) string {
-	files, err := os.ReadDir(workingDirectory)
+	return searchTextRecursive(workingDirectory, query)
+}
+
+func searchTextRecursive(dir string, query string) string {
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return fmt.Sprintf("Error reading directory: %v", err)
 	}
 
+	var results []string
 	for _, file := range files {
+		filePath := filepath.Join(dir, file.Name())
+
 		if file.IsDir() {
+			// Recursively search subdirectories
+			subResults := searchTextRecursive(filePath, query)
+			if subResults != "No results found" {
+				results = append(results, subResults)
+			}
 			continue
 		}
 
-		content, err := os.ReadFile(filepath.Join(workingDirectory, file.Name()))
+		content, err := os.ReadFile(filePath)
 		if err != nil {
 			continue
 		}
@@ -179,14 +191,19 @@ func SearchText(query string) string {
 		text := string(content)
 		lines := strings.Split(text, "\n")
 
-		for _, line := range lines {
+		for i, line := range lines {
 			if strings.Contains(line, query) {
-				return fmt.Sprintf("%s: %s", file.Name(), line)
+				// Get relative path from working directory
+				relPath, _ := filepath.Rel(workingDirectory, filePath)
+				results = append(results, fmt.Sprintf("%s:%d: %s", relPath, i+1, line))
 			}
 		}
 	}
 
-	return "No results found"
+	if len(results) == 0 {
+		return "No results found"
+	}
+	return strings.Join(results, "\n")
 }
 
 func Path(path string) string {
