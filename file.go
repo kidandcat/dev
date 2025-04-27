@@ -34,6 +34,14 @@ func NewGitignore(path string) *Gitignore {
 // Check if a path matches any ignore pattern
 func (g *Gitignore) IsIgnored(path string) bool {
 	for _, pattern := range g.Patterns {
+		// Handle directory patterns (ending with /)
+		if strings.HasSuffix(pattern, "/") {
+			dirPattern := strings.TrimSuffix(pattern, "/")
+			if strings.HasPrefix(path, dirPattern) {
+				return true
+			}
+		}
+		// Handle file patterns
 		match, err := filepath.Match(pattern, filepath.Base(path))
 		if err == nil && match {
 			return true
@@ -47,10 +55,11 @@ func ListDirectory(path string, depth int) string {
 		return ""
 	}
 
-	// Initialize ignore patterns if not already done
-	ignorePatterns := NewGitignore(path)
-
 	path = Path(path)
+
+	// Look for .gitignore in the current directory
+	gitignorePath := filepath.Join(path, ".gitignore")
+	ignorePatterns := NewGitignore(gitignorePath)
 
 	files, err := os.ReadDir(path)
 	if err != nil {
@@ -72,11 +81,14 @@ func ListDirectory(path string, depth int) string {
 
 		fileNames = append(fileNames, relativePath)
 
-		if file.IsDir() && depth > 0 {
+		if file.IsDir() && depth > 1 {
 			subPath := filepath.Join(path, file.Name())
 			subFiles := ListDirectory(subPath, depth-1)
-			for _, subFile := range subFiles {
-				fileNames = append(fileNames, filepath.Join(relativePath, string(subFile)))
+			if subFiles != "" && subFiles != "Empty directory" {
+				subFileList := strings.Split(subFiles, "\n")
+				for _, subFile := range subFileList {
+					fileNames = append(fileNames, filepath.Join(relativePath, subFile))
+				}
 			}
 		}
 	}
