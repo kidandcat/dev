@@ -140,7 +140,7 @@ func GetTools() []openai.Tool {
 			Type: openai.ToolTypeFunction,
 			Function: &openai.FunctionDefinition{
 				Name:        "lint_file",
-				Description: "Lint a file",
+				Description: "Lint a Go file to check for errors",
 				Parameters: jsonschema.Definition{
 					Type: jsonschema.Object,
 					Properties: map[string]jsonschema.Definition{

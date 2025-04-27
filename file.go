@@ -160,6 +160,35 @@ func MkDir(path string) string {
 	return fmt.Sprintf("Directory created: %s", path)
 }
 
+func SearchText(query string) string {
+	files, err := os.ReadDir(workingDirectory)
+	if err != nil {
+		return fmt.Sprintf("Error reading directory: %v", err)
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+
+		content, err := os.ReadFile(filepath.Join(workingDirectory, file.Name()))
+		if err != nil {
+			continue
+		}
+
+		text := string(content)
+		lines := strings.Split(text, "\n")
+
+		for _, line := range lines {
+			if strings.Contains(line, query) {
+				return fmt.Sprintf("%s: %s", file.Name(), line)
+			}
+		}
+	}
+
+	return "No results found"
+}
+
 func Path(path string) string {
 	if path == "." || path == "" {
 		path = workingDirectory

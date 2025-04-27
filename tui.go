@@ -48,7 +48,7 @@ func initialModel(cheap bool) *Model {
 		textarea: ta,
 		messages: []string{},
 		viewport: vp,
-		aiModel:  MODEL_GPT41,
+		aiModel:  MODEL_NANO,
 	}
 }
 
