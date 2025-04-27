@@ -126,7 +126,19 @@ func (m *Model) AppendError(err error) *Model {
 	errorStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("9")). // Red color
 		Bold(true)
-	msg := errorStyle.Render(fmt.Sprintf("[ERROR] %v", err))
+
+	// Get the viewport width to use for wrapping
+	width := m.viewport.Width
+	if width == 0 {
+		width = 80 // Default width if viewport width is not set
+	}
+
+	// Wrap the error message to fit the viewport width
+	wrappedMsg := lipgloss.NewStyle().
+		Width(width - 10). // Leave some margin
+		Render(fmt.Sprintf("[ERROR] %v", err))
+
+	msg := errorStyle.Render(wrappedMsg)
 	m.messages = append(m.messages, msg)
 	m.viewport.Style = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("9"))
 	m.viewport.SetContent(strings.Join(m.messages, "\n"))

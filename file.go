@@ -81,6 +81,10 @@ func ListDirectory(path string, depth int) string {
 		}
 	}
 
+	if len(fileNames) == 0 {
+		return "Empty directory"
+	}
+
 	return strings.Join(fileNames, "\n")
 }
 
@@ -110,7 +114,11 @@ func ReadFile(path string, offset int, length int) string {
 		return strings.Join(lines[offset:], "\n")
 	}
 
-	return strings.Join(lines[offset:offset+length], "\n")
+	res := strings.Join(lines[offset:offset+length], "\n")
+	if res == "" {
+		return "Empty file"
+	}
+	return res
 }
 
 func WriteFile(path string, content string) string {
