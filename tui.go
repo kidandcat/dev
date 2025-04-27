@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -86,10 +85,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m = m.AppendUser(content)
 			m.textarea.Reset()
 			m.viewport.GotoBottom()
-			go handleChatCompletion(context.TODO(), openai.ChatCompletionMessage{
+			go handleChatCompletion(MODEL_NANO, openai.ChatCompletionMessage{
 				Role:    "user",
 				Content: content,
-			}, m)
+			}, m, true)
 		}
 	}
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -141,10 +140,27 @@ func GetTools() []openai.Tool {
 				},
 			},
 		},
+		{
+			Type: openai.ToolTypeFunction,
+			Function: &openai.FunctionDefinition{
+				Name:        "plan_task",
+				Description: "Plan a task",
+				Parameters: jsonschema.Definition{
+					Type: jsonschema.Object,
+					Properties: map[string]jsonschema.Definition{
+						"task": {
+							Type:        jsonschema.String,
+							Description: "The task to plan",
+						},
+					},
+					Required: []string{"task"},
+				},
+			},
+		},
 	}
 }
 
-func ToolCall(ctx context.Context, toolCall openai.ToolCall) string {
+func ToolCall(toolCall openai.ToolCall, viewModel *Model) string {
 	switch toolCall.Function.Name {
 	case "visit_web_page":
 		var arguments struct {
@@ -207,6 +223,15 @@ func ToolCall(ctx context.Context, toolCall openai.ToolCall) string {
 			return fmt.Sprintf("Error unmarshalling path: %s", err)
 		}
 		return Lint(arguments.Path)
+	case "plan_task":
+		var arguments struct {
+			Task string `json:"task"`
+		}
+		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
+		if err != nil {
+			return fmt.Sprintf("Error unmarshalling task: %s", err)
+		}
+		return Plan(arguments.Task, viewModel)
 	}
 	return fmt.Sprintf("Unknown tool call: %s", toolCall.Function.Name)
 }

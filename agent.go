@@ -5,18 +5,24 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/openai/openai-go/shared"
 	openai "github.com/sashabaranov/go-openai"
+)
+
+const (
+	MODEL_GPT41 = shared.ChatModel("gpt-4.1-2025-04-14")
+	MODEL_NANO  = shared.ChatModel("gpt-4.1-nano-2025-04-14")
 )
 
 var messages []openai.ChatCompletionMessage
 
-func handleChatCompletion(ctx context.Context, msg openai.ChatCompletionMessage, model *Model) {
+func handleChatCompletion(model string, msg openai.ChatCompletionMessage, viewModel *Model, review bool) {
 	messages = append(messages, msg)
 
 	response, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: MODEL,
+			Model: model,
 			Messages: append([]openai.ChatCompletionMessage{
 				{
 					Role: "system",
@@ -25,8 +31,6 @@ func handleChatCompletion(ctx context.Context, msg openai.ChatCompletionMessage,
 					You have tools to analyze the local codebase, search the web, and more.
 
 					Date and time: %s
-
-					After you have written code, always use the lint_file tool to check if the code is correct.
 					`, time.Now().Format(time.RFC3339)),
 				},
 			}, messages...),
@@ -36,27 +40,36 @@ func handleChatCompletion(ctx context.Context, msg openai.ChatCompletionMessage,
 		},
 	)
 	if err != nil {
-		model.AppendError(fmt.Errorf("Error creating chat completion for (%#v): %v", msg, err))
+		viewModel.AppendError(fmt.Errorf("Error creating chat completion for (%#v): %v", msg, err))
 		return
 	}
 
 	messages = append(messages, response.Choices[0].Message)
 	if response.Choices[0].Message.Content != "" {
-		model.AppendAssistant(response.Choices[0].Message.Content)
+		viewModel.AppendAssistant(response.Choices[0].Message.Content)
+	}
+
+	if review {
+		defer func() {
+			handleChatCompletion(MODEL_NANO, openai.ChatCompletionMessage{
+				Role:    openai.ChatMessageRoleUser,
+				Content: "Run linter to check for code errors",
+			}, viewModel, false)
+		}()
 	}
 
 	for _, toolCall := range response.Choices[0].Message.ToolCalls {
 		if toolCall == response.Choices[0].Message.ToolCalls[len(response.Choices[0].Message.ToolCalls)-1] {
-			handleChatCompletion(ctx, handleToolCall(ctx, toolCall, model), model)
+			handleChatCompletion(MODEL_NANO, handleToolCall(toolCall, viewModel), viewModel, false)
 			return
 		}
-		messages = append(messages, handleToolCall(ctx, toolCall, model))
+		messages = append(messages, handleToolCall(toolCall, viewModel))
 	}
 }
 
-func handleToolCall(ctx context.Context, toolCall openai.ToolCall, model *Model) openai.ChatCompletionMessage {
-	res := ToolCall(ctx, toolCall)
-	model.AppendInfo(fmt.Sprintf("%s(%s) -> %s", toolCall.Function.Name, toolCall.Function.Arguments, res))
+func handleToolCall(toolCall openai.ToolCall, viewModel *Model) openai.ChatCompletionMessage {
+	res := ToolCall(toolCall, viewModel)
+	viewModel.AppendInfo(fmt.Sprintf("%s(%s) -> %s", toolCall.Function.Name, toolCall.Function.Arguments, res))
 	return openai.ChatCompletionMessage{
 		Role:       openai.ChatMessageRoleTool,
 		Content:    res,
