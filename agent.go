@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/openai/openai-go/shared"
@@ -54,13 +55,13 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) {
 		},
 	)
 	if err != nil {
-		logger.Printf("Error creating chat completion for (%#v): %v", msg, err)
+		log.Printf("Error creating chat completion for (%#v): %v", msg, err)
 		return
 	}
 
 	messages = append(messages, response.Choices[0].Message)
 	if response.Choices[0].Message.Content != "" {
-		logger.Printf("Assistant: %s", response.Choices[0].Message.Content)
+		log.Printf("Assistant: %s", response.Choices[0].Message.Content)
 	}
 
 	for _, toolCall := range response.Choices[0].Message.ToolCalls {
@@ -74,7 +75,7 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) {
 
 func handleToolCall(toolCall openai.ToolCall) openai.ChatCompletionMessage {
 	res := ToolCall(toolCall)
-	logger.Printf("%s(%s)", toolCall.Function.Name, toolCall.Function.Arguments)
+	log.Printf("%s(%s)", toolCall.Function.Name, toolCall.Function.Arguments)
 	if res == "" {
 		panic(fmt.Sprintf("Tool call %s(%s) returned empty string", toolCall.Function.Name, toolCall.Function.Arguments))
 	}
