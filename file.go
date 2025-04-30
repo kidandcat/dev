@@ -165,6 +165,8 @@ func SearchText(query string) string {
 }
 
 func searchTextRecursive(dir string, query string) string {
+	dir = Path(dir)
+
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		return fmt.Sprintf("Error reading directory: %v", err)
