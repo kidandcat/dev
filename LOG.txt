@@ -1,0 +1,7 @@
+list_directory({"depth":1,"path":"./"})
+search_text({"query":"TASKS.md"})
+read_file({"length":40,"offset":0,"path":"INPUT.md"})
+write_file({"content":"# Tasks\n\n- [ ] Add another endpoint `/bye` which receives a query parameter `q` and responds with \"bye <q>\"\n","path":"TASKS.md"})
+read_file({"length":60,"offset":0,"path":"main.go"})
+write_file({"content":"package main\n\nimport (\n\t\"log\"\n\t\"net/http\"\n\t\"os\"\n)\n\nfunc main() {\n\tport := os.Getenv(\"PORT\")\n\tif port == \"\" {\n\t\tport = \"8004\" // default port\n\t}\n\n\thttp.Handle(\"/\", http.FileServer(http.Dir(\"./public\")))\n\n\t// Add handler for /hello endpoint\n\thttp.HandleFunc(\"/hello\", func(w http.ResponseWriter, r *http.Request) {\n\t\tw.Write([]byte(\"Hello, World!\"))\n\t})\n\n\t// Add handler for /bye endpoint\n\thttp.HandleFunc(\"/bye\", func(w http.ResponseWriter, r *http.Request) {\n\t\tq := r.URL.Query().Get(\"q\")\n\t\tw.Write([]byte(\"bye \" + q))\n\t})\n\n\tlog.Println(\"Serving on :\" + port)\n\tif err := http.ListenAndServe(\":\"+port, nil); err != nil {\n\t\tlog.Fatal(err)\n\t}\n}\n","path":"main.go"})
+write_file({"content":"# Tasks\n\n- [x] Add another endpoint `/bye` which receives a query parameter `q` and responds with \"bye <q>\"\n","path":"TASKS.md"})

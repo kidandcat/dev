@@ -19,6 +19,12 @@ func main() {
 		w.Write([]byte("Hello, World!"))
 	})
 
+	// Add handler for /bye endpoint
+	http.HandleFunc("/bye", func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query().Get("q")
+		w.Write([]byte("bye " + q))
+	})
+
 	log.Println("Serving on :" + port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)

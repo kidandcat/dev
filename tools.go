@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	openai "github.com/sashabaranov/go-openai"
 	"github.com/sashabaranov/go-openai/jsonschema"
@@ -170,10 +171,17 @@ func GetTools() []openai.Tool {
 				},
 			},
 		},
+		{
+			Type: openai.ToolTypeFunction,
+			Function: &openai.FunctionDefinition{
+				Name:        "finished",
+				Description: "Finish the program",
+			},
+		},
 	}
 }
 
-func ToolCall(toolCall openai.ToolCall, viewModel *Model) string {
+func ToolCall(toolCall openai.ToolCall) string {
 	switch toolCall.Function.Name {
 	case "visit_web_page":
 		var arguments struct {
@@ -253,6 +261,9 @@ func ToolCall(toolCall openai.ToolCall, viewModel *Model) string {
 			return fmt.Sprintf("Error unmarshalling query: %s", err)
 		}
 		return SearchText(arguments.Query)
+	case "finished":
+		os.WriteFile("INPUT.md", []byte(""), 0644)
+		os.Exit(0)
 	}
 	return fmt.Sprintf("Unknown tool call: %s", toolCall.Function.Name)
 }
