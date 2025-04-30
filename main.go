@@ -53,8 +53,6 @@ func main() {
 			Content: `
 			Read the TASKS.md file and do the next task.
 			After each task, update the TASKS.md file to reflect the changes.
-
-			Use the tool "finished" to finish the program only when all tasks are completed.
 			`,
 		})
 	}

@@ -175,8 +175,15 @@ func GetTools() []openai.Tool {
 		{
 			Type: openai.ToolTypeFunction,
 			Function: &openai.FunctionDefinition{
+				Name:        "continue",
+				Description: "Continue with the next task",
+			},
+		},
+		{
+			Type: openai.ToolTypeFunction,
+			Function: &openai.FunctionDefinition{
 				Name:        "finished",
-				Description: "Finish the program",
+				Description: "Exit the program (only when all tasks are completed)",
 			},
 		},
 	}

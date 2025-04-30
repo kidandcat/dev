@@ -52,6 +52,10 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) {
 	}
 
 	for _, toolCall := range response.Choices[0].Message.ToolCalls {
+		if toolCall.Function.Name == "continue" {
+			log.Println("Continue")
+			return
+		}
 		if toolCall == response.Choices[0].Message.ToolCalls[len(response.Choices[0].Message.ToolCalls)-1] {
 			handleChatCompletion(model, handleToolCall(toolCall))
 			return
