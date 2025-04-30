@@ -31,20 +31,7 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) {
 					Content: fmt.Sprintf(`
 					You are an autonomous agent that can write code, fix bugs, and implement features.
 					You have tools to analyze the local codebase, search the web, and more.
-
-					Check if a file TASKS.md exists in the working directory.
-					If it does, read it and do the next task.
 					
-					If it doesn't, open a file called INPUT.md and read the content.
-					Create a list of tasks to complete based on the content of the INPUT.md file.
-					Write the markdown taskslist to a file called TASKS.md.
-
-					Then, iterate over the tasks in TASKS.md and do them one by one.
-					After each task, update the TASKS.md file to reflect the changes.
-
-
-					Use the tool "finished" to finish the program when all tasks are completed.
-
 					Date and time: %s
 					`, time.Now().Format(time.RFC3339)),
 				},

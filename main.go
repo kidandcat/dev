@@ -38,10 +38,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	handleChatCompletion(MODEL_GPT41, openai.ChatCompletionMessage{
+		Role: "user",
+		Content: `
+		Open a file called INPUT.md and read the content.
+		Add new tasks based on the content of the INPUT.md file to the markdown checklist in the TASKS.md file.
+		
+		If the file TASKS.md does not exist, create it.
+		`,
+	})
 	for {
 		handleChatCompletion(MODEL_GPT41, openai.ChatCompletionMessage{
-			Role:    "user",
-			Content: "continue",
+			Role: "user",
+			Content: `
+			Read the TASKS.md file and do the next task.
+			After each task, update the TASKS.md file to reflect the changes.
+
+			Use the tool "finished" to finish the program only when all tasks are completed.
+			`,
 		})
 	}
 }

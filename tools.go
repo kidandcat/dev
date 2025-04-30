@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	openai "github.com/sashabaranov/go-openai"
@@ -262,6 +263,7 @@ func ToolCall(toolCall openai.ToolCall) string {
 		}
 		return SearchText(arguments.Query)
 	case "finished":
+		log.Println("Finished")
 		os.WriteFile("INPUT.md", []byte(""), 0644)
 		os.Exit(0)
 	}
