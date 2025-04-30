@@ -14,3 +14,8 @@
 - [ ] Run tests after each file modification.
 - [ ] Make a commit per step.
 
+## Documentation levels
+
+1. Data structures and relationships
+2. Methods and functions
+3. Files and folders
