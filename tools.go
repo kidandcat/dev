@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	openai "github.com/sashabaranov/go-openai"
 	"github.com/sashabaranov/go-openai/jsonschema"
@@ -182,7 +183,7 @@ func GetTools() []openai.Tool {
 		{
 			Type: openai.ToolTypeFunction,
 			Function: &openai.FunctionDefinition{
-				Name:        "finished",
+				Name:        "all_tasks_completed",
 				Description: "Exit the program (only when all tasks are completed)",
 			},
 		},
@@ -269,9 +270,10 @@ func ToolCall(toolCall openai.ToolCall) string {
 			return fmt.Sprintf("Error unmarshalling query: %s", err)
 		}
 		return SearchText(arguments.Query)
-	case "finished":
-		log.Println("Finished")
+	case "all_tasks_completed":
+		log.Println("All tasks completed")
 		os.WriteFile("INPUT.md", []byte(""), 0644)
+		time.Sleep(2 * time.Second)
 		os.Exit(0)
 	}
 	return fmt.Sprintf("Unknown tool call: %s", toolCall.Function.Name)

@@ -10,8 +10,15 @@ func Lint(path string) string {
 	path = Path(path)
 	dir := filepath.Dir(path)
 
-	command := exec.Command("go", "vet", dir)
+	command := exec.Command("go", "mod", "tidy")
+	command.Dir = dir
 	output, err := command.CombinedOutput()
+	if err != nil && len(output) == 0 {
+		return fmt.Sprintf("Error formatting go file: %s", err)
+	}
+
+	command = exec.Command("go", "vet", dir)
+	output, err = command.CombinedOutput()
 	if err != nil && len(output) == 0 {
 		return fmt.Sprintf("Error formatting go file: %s", err)
 	}
