@@ -3,7 +3,7 @@ package main
 import "google.golang.org/genai"
 
 func GenWiki() {
-	handleChatCompletion(MODEL_EXPENSIVE, &genai.Content{
+	handleChatCompletion(MODEL_BIG, &genai.Content{
 		Role: genai.RoleUser,
 		Parts: []*genai.Part{
 			genai.NewPartFromText(`

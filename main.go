@@ -54,7 +54,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	handleChatCompletion(MODEL_EXPENSIVE, &genai.Content{
+	handleChatCompletion(MODEL_BIG, &genai.Content{
 		Role: genai.RoleUser,
 		Parts: []*genai.Part{
 			genai.NewPartFromText(`
