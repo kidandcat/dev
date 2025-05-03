@@ -54,7 +54,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	handleChatCompletion(MODEL_BIG, &genai.Content{
+	handleChatCompletion(MODEL_EXPENSIVE, &genai.Content{
 		Role: genai.RoleUser,
 		Parts: []*genai.Part{
 			genai.NewPartFromText(`
@@ -120,6 +120,7 @@ func main() {
 			continue
 		} else {
 			// No more tasks, no pending todos, break the loop
+			GenWiki()
 			break
 		}
 	}
