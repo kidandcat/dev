@@ -31,7 +31,7 @@ func handleChatCompletion(model string, msg *genai.Content) string {
 		&genai.GenerateContentConfig{
 			SystemInstruction: genai.NewContentFromText(fmt.Sprintf(`
 					You are an autonomous, unsupervised agent that can write Go code, fix bugs, and implement features.
-					There is no user able to provide feedback. You are the only one in the conversation.
+					There is no user to provide feedback. You are the only one in the conversation.
 					You have tools to analyze the local codebase, search the web, and more.
 					
 					Date and time: %s
@@ -80,17 +80,11 @@ func YesNoQuestion(question string) bool {
 		context.Background(),
 		MODEL_SMALL,
 		[]*genai.Content{
-			genai.NewContentFromText(fmt.Sprintf(`
-					You are an autonomous, unsupervised agent that can write Go code, fix bugs, and implement features.
-					There is no user able to provide feedback. You are the only one in the conversation.
-					You have tools to analyze the local codebase, search the web, and more.
-					
-					Date and time: %s
-					`, time.Now().Format(time.RFC3339)), genai.RoleUser),
-			genai.NewContentFromText(`You must answer the question with a "yes" or "no" tool call.`, genai.RoleUser),
+			genai.NewContentFromText(question, genai.RoleUser),
 		},
 		&genai.GenerateContentConfig{
-			Temperature: &temperature,
+			Temperature:       &temperature,
+			SystemInstruction: genai.NewContentFromText(`You must answer the question with a "yes" or "no" tool call.`, genai.RoleUser),
 			Tools: []*genai.Tool{
 				{
 					FunctionDeclarations: []*genai.FunctionDeclaration{
