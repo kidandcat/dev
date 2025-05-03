@@ -1,1 +1,0 @@
-- [x] Add a better style to the landing page.
