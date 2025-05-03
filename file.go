@@ -122,11 +122,12 @@ func ReadFile(path string, offset int, length int) string {
 		return fmt.Sprintf("File has %d lines, cannot read line %d", len(lines), offset)
 	}
 
+	var res string
 	if offset+length > len(lines) {
-		return strings.Join(lines[offset:], "\n")
+		res = strings.Join(lines[offset:], "\n")
+	} else {
+		res = strings.Join(lines[offset:offset+length], "\n")
 	}
-
-	res := strings.Join(lines[offset:offset+length], "\n")
 	if res == "" {
 		return "Empty file"
 	}
