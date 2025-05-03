@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -92,6 +93,7 @@ func main() {
 		%s
 		
 		`, string(tasks), response)) {
+			log.Printf("Tasks not completed, continuing")
 			continue
 		}
 		// Erase the INPUT.md file
@@ -117,9 +119,10 @@ func main() {
 					`, string(diff))),
 				},
 			})
+			log.Printf("There are pending todos, continuing")
 			continue
 		} else {
-			// No more tasks, no pending todos, break the loop
+			log.Printf("No more tasks, no pending todos, generating wiki")
 			GenWiki()
 			break
 		}
