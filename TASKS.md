@@ -18,3 +18,5 @@
 - [x] Make a commit per step.
 - [x] Add a new tool to fetch the documentation, it should return the content of all the markdown files in the `wiki` folder as a string for the LLM to use.
 - [x] Update the code in main.go to erase the content of the INPUT.md file when all the tasks are completed, before finishing the main() function.
+- [ ] Create a landing page to sell the autonomous developer agent in this package (read wiki for more information).
+- [x] The landing page must be static (html, css, js) and must reside in a "landing" directory in the root of the project.

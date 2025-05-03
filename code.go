@@ -14,7 +14,7 @@ import (
 	"go/token"
 )
 
-func Lint(path string) string {
+func Lint(path string) map[string]any {
 	path = Path(path)
 	dir := filepath.Dir(path)
 
@@ -22,46 +22,62 @@ func Lint(path string) string {
 	command.Dir = dir
 	output, err := command.CombinedOutput()
 	if err != nil && len(output) == 0 {
-		return fmt.Sprintf("Error formatting go file: %s", err)
+		return map[string]any{
+			"error": fmt.Sprintf("Error formatting go file: %s", err),
+		}
 	}
 
 	command = exec.Command("go", "vet", dir)
 	output, err = command.CombinedOutput()
 	if err != nil && len(output) == 0 {
-		return fmt.Sprintf("Error formatting go file: %s", err)
+		return map[string]any{
+			"error": fmt.Sprintf("Error formatting go file: %s", err),
+		}
 	}
 	if len(output) > 0 {
-		return string(output)
+		return map[string]any{
+			"error": string(output),
+		}
 	}
 
 	command = exec.Command("go", "fmt", dir)
 	output, err = command.CombinedOutput()
 	if err != nil && len(output) == 0 {
-		return fmt.Sprintf("Error formatting go file: %s", err)
+		return map[string]any{
+			"error": fmt.Sprintf("Error formatting go file: %s", err),
+		}
 	}
 	if len(output) > 0 {
-		return string(output)
+		return map[string]any{
+			"error": string(output),
+		}
 	}
 
-	return "No errors found"
+	return map[string]any{
+		"results": "No errors found",
+	}
 }
 
 // This function reads the code of the specified functions from the specified file.
 // It also returns the rest of the function signatures (without the body) in the file
 // and the structs, interfaces and types in the file.
 // So, in summary, it returns the Go file but removing the body of any functions not passed in the functions parameter.
-func ReadCode(path string, functions ...string) string {
+func ReadCode(path string, functions ...string) map[string]any {
 	path = Path(path)
 	content, err := os.ReadFile(path)
 	if err != nil {
-		return fmt.Sprintf("Error reading file: %s", err)
+		return map[string]any{
+			"error": fmt.Sprintf("Error reading file: %s", err),
+		}
 	}
 
 	// Parse the Go file
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, content, parser.ParseComments)
 	if err != nil {
-		return fmt.Sprintf("Error parsing file: %s", err)
+		return map[string]any{
+			"error": fmt.Sprintf("Error parsing file: %s", err),
+		}
 	}
 
 	var result strings.Builder
@@ -117,22 +133,28 @@ func ReadCode(path string, functions ...string) string {
 		}
 	}
 
-	return result.String()
+	return map[string]any{
+		"results": result.String(),
+	}
 }
 
 // This function adds a new function to the specified Go file, or edits an existing function.
-func AddOrEditFunction(path string, functionName string, functionBody string) string {
+func AddOrEditFunction(path string, functionName string, functionBody string) map[string]any {
 	path = Path(path)
 	content, err := os.ReadFile(path)
 	if err != nil {
-		return fmt.Sprintf("Error reading file: %s", err)
+		return map[string]any{
+			"error": fmt.Sprintf("Error reading file: %s", err),
+		}
 	}
 
 	// Parse the Go file
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, content, parser.ParseComments)
 	if err != nil {
-		return fmt.Sprintf("Error parsing file: %s", err)
+		return map[string]any{
+			"error": fmt.Sprintf("Error parsing file: %s", err),
+		}
 	}
 
 	// Check if function already exists
@@ -147,7 +169,9 @@ func AddOrEditFunction(path string, functionName string, functionBody string) st
 	// Parse the new function body
 	newFunc, err := parser.ParseFile(fset, "", "package p\n"+functionBody, parser.ParseComments)
 	if err != nil {
-		return fmt.Sprintf("Error parsing new function: %s", err)
+		return map[string]any{
+			"error": fmt.Sprintf("Error parsing new function: %s", err),
+		}
 	}
 
 	// Get the new function declaration
@@ -160,7 +184,9 @@ func AddOrEditFunction(path string, functionName string, functionBody string) st
 	}
 
 	if newFuncDecl == nil {
-		return "Error: Could not parse new function declaration"
+		return map[string]any{
+			"error": "Error: Could not parse new function declaration",
+		}
 	}
 
 	// If function exists, replace it; otherwise, add it
@@ -175,12 +201,18 @@ func AddOrEditFunction(path string, functionName string, functionBody string) st
 	// Write the modified file
 	var buf bytes.Buffer
 	if err := printer.Fprint(&buf, fset, f); err != nil {
-		return fmt.Sprintf("Error writing file: %s", err)
+		return map[string]any{
+			"error": fmt.Sprintf("Error writing file: %s", err),
+		}
 	}
 
 	if err := os.WriteFile(path, buf.Bytes(), 0644); err != nil {
-		return fmt.Sprintf("Error saving file: %s", err)
+		return map[string]any{
+			"error": fmt.Sprintf("Error saving file: %s", err),
+		}
 	}
 
-	return "Function successfully added/edited"
+	return map[string]any{
+		"results": "Function successfully added/edited",
+	}
 }

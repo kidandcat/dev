@@ -1,0 +1,2 @@
+Create a landing page to sell the autonomous developer agent in this package (read wiki for more information).
+The landing page must be static (html, css, js) and must reside in a "landing" directory in the root of the project.

@@ -1,359 +1,219 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-	"os"
-	"time"
 
-	openai "github.com/sashabaranov/go-openai"
-	"github.com/sashabaranov/go-openai/jsonschema"
+	"google.golang.org/genai"
 )
 
-func GetTools() []openai.Tool {
-	return []openai.Tool{
+func GetTools() []*genai.Tool {
+	return []*genai.Tool{
 		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "visit_web_page",
-				Description: "Visit a web page and get the source HTML",
-				Parameters: jsonschema.Definition{
-					Type: jsonschema.Object,
-					Properties: map[string]jsonschema.Definition{
-						"url": {
-							Type:        jsonschema.String,
-							Description: "The url of the web page to visit",
+			FunctionDeclarations: []*genai.FunctionDeclaration{
+				{
+					Name:        "visit_web_page",
+					Description: "Visit a web page and get the source HTML",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"url":     {Type: genai.TypeString, Description: "The url of the web page to visit"},
+							"headers": {Type: genai.TypeObject, Description: "The headers to send to the web page (optional)"},
+							"cookies": {Type: genai.TypeObject, Description: "The cookies to send to the web page (optional)"},
 						},
-						"headers": {
-							Type:        jsonschema.Object,
-							Description: "The headers to send to the web page (optional)",
-						},
-						"cookies": {
-							Type:        jsonschema.Object,
-							Description: "The cookies to send to the web page (optional)",
-						},
+						Required: []string{"url"},
 					},
-					Required: []string{"url"},
 				},
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "web_page_search",
-				Description: "Search a web page for a query",
-				Parameters: jsonschema.Definition{
-					Type: jsonschema.Object,
-					Properties: map[string]jsonschema.Definition{
-						"query": {
-							Type:        jsonschema.String,
-							Description: "The query to search for",
+				{
+					Name:        "web_page_search",
+					Description: "Search a web page for a query",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"query": {Type: genai.TypeString, Description: "The query to search for"},
 						},
+						Required: []string{"query"},
 					},
-					Required: []string{"query"},
 				},
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "list_directory",
-				Description: "List the files in a directory",
-				Parameters: jsonschema.Definition{
-					Type: jsonschema.Object,
-					Properties: map[string]jsonschema.Definition{
-						"path": {
-							Type:        jsonschema.String,
-							Description: "The path to list the files in, relative to the working directory",
+				{
+					Name:        "list_directory",
+					Description: "List the files in a directory",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"path":  {Type: genai.TypeString, Description: "The path to list the files in, relative to the working directory"},
+							"depth": {Type: genai.TypeInteger, Description: "The depth of the subdirectories to list"},
 						},
-						"depth": {
-							Type:        jsonschema.Integer,
-							Description: "The depth of the subdirectories to list",
-						},
+						Required: []string{"path", "depth"},
 					},
-					Required: []string{"path", "depth"},
 				},
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "read_file",
-				Description: "Read a file",
-				Parameters: jsonschema.Definition{
-					Type: jsonschema.Object,
-					Properties: map[string]jsonschema.Definition{
-						"path": {
-							Type:        jsonschema.String,
-							Description: "The path to read the file from, relative to the working directory",
+				{
+					Name:        "read_file",
+					Description: "Read a file",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"path":   {Type: genai.TypeString, Description: "The path to read the file from, relative to the working directory"},
+							"offset": {Type: genai.TypeInteger, Description: "The line to start reading the file from"},
+							"length": {Type: genai.TypeInteger, Description: "The number of lines to read"},
 						},
-						"offset": {
-							Type:        jsonschema.Integer,
-							Description: "The line to start reading the file from",
-						},
-						"length": {
-							Type:        jsonschema.Integer,
-							Description: "The number of lines to read",
-						},
+						Required: []string{"path", "offset", "length"},
 					},
-					Required: []string{"path", "offset", "length"},
 				},
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "write_file",
-				Description: "Write to a file",
-				Parameters: jsonschema.Definition{
-					Type: jsonschema.Object,
-					Properties: map[string]jsonschema.Definition{
-						"path": {
-							Type:        jsonschema.String,
-							Description: "The path to write the file to, relative to the working directory",
+				{
+					Name:        "write_file",
+					Description: "Write to a file",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"path":    {Type: genai.TypeString, Description: "The path to write the file to, relative to the working directory"},
+							"content": {Type: genai.TypeString, Description: "The content to write to the file"},
 						},
-						"content": {
-							Type:        jsonschema.String,
-							Description: "The content to write to the file",
-						},
+						Required: []string{"path", "content"},
 					},
-					Required: []string{"path", "content"},
 				},
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "make_directory",
-				Description: "Make a directory",
-				Parameters: jsonschema.Definition{
-					Type: jsonschema.Object,
-					Properties: map[string]jsonschema.Definition{
-						"path": {
-							Type:        jsonschema.String,
-							Description: "The path to make the directory in, relative to the working directory",
+				{
+					Name:        "make_directory",
+					Description: "Make a directory",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"path": {Type: genai.TypeString, Description: "The path to make the directory in, relative to the working directory"},
 						},
+						Required: []string{"path"},
 					},
-					Required: []string{"path"},
 				},
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "lint_file",
-				Description: "Lint a Go file to check for errors",
-				Parameters: jsonschema.Definition{
-					Type: jsonschema.Object,
-					Properties: map[string]jsonschema.Definition{
-						"path": {
-							Type:        jsonschema.String,
-							Description: "The path to lint the file from, relative to the working directory",
+				{
+					Name:        "lint_file",
+					Description: "Lint a Go file to check for errors",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"path": {Type: genai.TypeString, Description: "The path to lint the file from, relative to the working directory"},
 						},
+						Required: []string{"path"},
 					},
-					Required: []string{"path"},
 				},
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "search_text",
-				Description: "Search for text in the working directory",
-				Parameters: jsonschema.Definition{
-					Type: jsonschema.Object,
-					Properties: map[string]jsonschema.Definition{
-						"query": {
-							Type:        jsonschema.String,
-							Description: "The query to search for",
+				{
+					Name:        "search_text",
+					Description: "Search for text in the working directory",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"query": {Type: genai.TypeString, Description: "The query to search for"},
 						},
+						Required: []string{"query"},
 					},
-					Required: []string{"query"},
 				},
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "fetch_wiki_docs",
-				Description: "Fetch the documentation from the wiki folder",
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "continue",
-				Description: "Continue with the next task",
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "all_tasks_completed",
-				Description: "Exit the program (only when all tasks are completed)",
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "read_code",
-				Description: "Read the code of specified functions from a Go file, returning the full file with only the specified functions' bodies",
-				Parameters: jsonschema.Definition{
-					Type: jsonschema.Object,
-					Properties: map[string]jsonschema.Definition{
-						"path": {
-							Type:        jsonschema.String,
-							Description: "The path to the Go file to read",
+				{
+					Name:        "fetch_wiki_docs",
+					Description: "Fetch the documentation from the wiki folder",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"path": {Type: genai.TypeString, Description: "The path to fetch the documentation from, relative to the working directory"},
 						},
-						"functions": {
-							Type:        jsonschema.Array,
-							Description: "List of function names to keep the full body of",
-							Items: &jsonschema.Definition{
-								Type: jsonschema.String,
+						Required: []string{"path"},
+					},
+				},
+				{
+					Name:        "continue",
+					Description: "Task finished, continue with the next task",
+					Parameters: &genai.Schema{
+						Type:       genai.TypeObject,
+						Properties: map[string]*genai.Schema{},
+						Required:   []string{},
+					},
+				},
+				{
+					Name:        "read_code",
+					Description: "Read the code of specified functions from a Go file, returning the full file with only the specified functions' bodies",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"path": {Type: genai.TypeString, Description: "The path to the Go file to read, relative to the working directory"},
+							"functions": {
+								Type:        genai.TypeArray,
+								Description: "The list of function names to keep the full body of",
+								Items: &genai.Schema{
+									Type: genai.TypeString,
+								},
 							},
 						},
+						Required: []string{"path", "functions"},
 					},
-					Required: []string{"path"},
 				},
-			},
-		},
-		{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        "add_or_edit_function",
-				Description: "Add a new function to a Go file or edit an existing function",
-				Parameters: jsonschema.Definition{
-					Type: jsonschema.Object,
-					Properties: map[string]jsonschema.Definition{
-						"path": {
-							Type:        jsonschema.String,
-							Description: "The path to the Go file to modify",
+				{
+					Name:        "add_or_edit_function",
+					Description: "Add a new function to a Go file or edit an existing function",
+					Parameters: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"path":          {Type: genai.TypeString, Description: "The path to the Go file to modify, relative to the working directory"},
+							"function_name": {Type: genai.TypeString, Description: "The name of the function to add or edit"},
+							"function_body": {Type: genai.TypeString, Description: "The complete function body to add or replace"},
 						},
-						"function_name": {
-							Type:        jsonschema.String,
-							Description: "The name of the function to add or edit",
-						},
-						"function_body": {
-							Type:        jsonschema.String,
-							Description: "The complete function body to add or replace",
-						},
+						Required: []string{"path", "function_name", "function_body"},
 					},
-					Required: []string{"path", "function_name", "function_body"},
 				},
 			},
 		},
 	}
 }
 
-func ToolCall(toolCall openai.ToolCall) string {
-	switch toolCall.Function.Name {
+func ToolCall(toolCall *genai.FunctionCall) map[string]any {
+	switch toolCall.Name {
 	case "visit_web_page":
-		var arguments struct {
-			URL     string            `json:"url"`
-			Headers map[string]string `json:"headers"`
-			Cookies map[string]string `json:"cookies"`
-		}
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			return fmt.Sprintf("Error unmarshalling url: %s", err)
-		}
-		return WebSource(arguments.URL, arguments.Headers, arguments.Cookies)
+		return WebSource(getString(toolCall.Args["url"]), getMap(toolCall.Args["headers"]), getMap(toolCall.Args["cookies"]))
 	case "web_page_search":
-		var arguments struct {
-			Query string `json:"query"`
-		}
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			return fmt.Sprintf("Error unmarshalling query: %s", err)
-		}
-		return WebSearch(arguments.Query)
+		return WebSearch(getString(toolCall.Args["query"]))
 	case "list_directory":
-		var arguments struct {
-			Path  string `json:"path"`
-			Depth int    `json:"depth"`
-		}
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			return fmt.Sprintf("Error unmarshalling path: %s", err)
-		}
-		return ListDirectory(arguments.Path, arguments.Depth)
+		return ListDirectory(getString(toolCall.Args["path"]), getInt(toolCall.Args["depth"]))
 	case "read_file":
-		var arguments struct {
-			Path   string `json:"path"`
-			Offset int    `json:"offset"`
-			Length int    `json:"length"`
-		}
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			return fmt.Sprintf("Error unmarshalling path: %s", err)
-		}
-		return ReadFile(arguments.Path, arguments.Offset, arguments.Length)
+		return ReadFile(getString(toolCall.Args["path"]), getInt(toolCall.Args["offset"]), getInt(toolCall.Args["length"]))
 	case "write_file":
-		var arguments struct {
-			Path    string `json:"path"`
-			Content string `json:"content"`
-		}
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			return fmt.Sprintf("Error unmarshalling path: %s", err)
-		}
-		return WriteFile(arguments.Path, arguments.Content)
+		return WriteFile(getString(toolCall.Args["path"]), getString(toolCall.Args["content"]))
 	case "make_directory":
-		var arguments struct {
-			Path string `json:"path"`
-		}
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			return fmt.Sprintf("Error unmarshalling path: %s", err)
-		}
-		return MkDir(arguments.Path)
+		return MkDir(getString(toolCall.Args["path"]))
 	case "fetch_wiki_docs":
 		return FetchWikiDocs()
 	case "lint_file":
-		var arguments struct {
-			Path string `json:"path"`
-		}
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			return fmt.Sprintf("Error unmarshalling path: %s", err)
-		}
-		return Lint(arguments.Path)
+		return Lint(getString(toolCall.Args["path"]))
 	case "search_text":
-		var arguments struct {
-			Query string `json:"query"`
-		}
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			return fmt.Sprintf("Error unmarshalling query: %s", err)
-		}
-		return SearchText(arguments.Query)
-	case "all_tasks_completed":
-		log.Println("All tasks completed")
-		os.WriteFile("INPUT.md", []byte(""), 0644)
-		time.Sleep(2 * time.Second)
-		os.Exit(0)
+		return SearchText(getString(toolCall.Args["query"]))
 	case "read_code":
-		var arguments struct {
-			Path      string   `json:"path"`
-			Functions []string `json:"functions"`
-		}
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			return fmt.Sprintf("Error unmarshalling arguments: %s", err)
-		}
-		return ReadCode(arguments.Path, arguments.Functions...)
+		return ReadCode(getString(toolCall.Args["path"]), getString(toolCall.Args["functions"]))
 	case "add_or_edit_function":
-		var arguments struct {
-			Path         string `json:"path"`
-			FunctionName string `json:"function_name"`
-			FunctionBody string `json:"function_body"`
-		}
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			return fmt.Sprintf("Error unmarshalling arguments: %s", err)
-		}
-		return AddOrEditFunction(arguments.Path, arguments.FunctionName, arguments.FunctionBody)
+		return AddOrEditFunction(getString(toolCall.Args["path"]), getString(toolCall.Args["function_name"]), getString(toolCall.Args["function_body"]))
 	}
-	return fmt.Sprintf("Unknown tool call: %s", toolCall.Function.Name)
+	return map[string]any{
+		"error": fmt.Sprintf("Unknown tool call: %s", toolCall.Name),
+	}
+}
+
+func getString(data any) string {
+	if data == nil {
+		return ""
+	}
+	return data.(string)
+}
+
+func getMap(data any) map[string]string {
+	if data == nil {
+		return map[string]string{}
+	}
+	return data.(map[string]string)
+}
+
+func getInt(data any) int {
+	if data == nil {
+		return 0
+	}
+	switch v := data.(type) {
+	case int:
+		return v
+	case float64:
+		return int(v)
+	default:
+		return 0
+	}
 }

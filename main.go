@@ -1,14 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 
-	openai "github.com/sashabaranov/go-openai"
+	"google.golang.org/genai"
 )
 
-var client *openai.Client
+var client *genai.Client
 
 func main() {
 	if len(os.Args) < 2 {
@@ -35,34 +36,59 @@ func main() {
 		fmt.Printf("GEMINI_API_KEY is not set")
 		os.Exit(1)
 	}
-	config := openai.DefaultConfig(key)
-	config.BaseURL = "https://generativelanguage.googleapis.com/v1beta/openai/"
-	client = openai.NewClientWithConfig(config)
+
+	var err error
+	ctx := context.Background()
+	client, err = genai.NewClient(ctx, &genai.ClientConfig{
+		APIKey:  key,
+		Backend: genai.BackendGeminiAPI,
+	})
+	if err != nil {
+		fmt.Printf("Error creating client: %s", err)
+		os.Exit(1)
+	}
 
 	if _, err := os.Stat(filepath.Join(workingDirectory, "INPUT.md")); os.IsNotExist(err) {
 		fmt.Printf("Input file INPUT.md does not exist in the working directory %s", workingDirectory)
 		os.Exit(1)
 	}
 
-	handleChatCompletion(MODEL_BIG, openai.ChatCompletionMessage{
-		Role: "user",
-		Content: `
-		Open a file called INPUT.md and read the content.
-		Add new tasks based on the content of the INPUT.md file to the markdown checklist in the TASKS.md file.
-		
-		If the file TASKS.md does not exist, create it.
-		`,
+	handleChatCompletion(MODEL_BIG, &genai.Content{
+		Role: genai.RoleUser,
+		Parts: []*genai.Part{
+			genai.NewPartFromText(`
+			Open a file called INPUT.md and read the content.
+			Add new tasks based on the content of the INPUT.md file to the markdown checklist in the TASKS.md file.
+			
+			If the file TASKS.md does not exist, create it.
+			`),
+		},
 	})
-	for {
-		response := handleChatCompletion(MODEL_BIG, openai.ChatCompletionMessage{
-			Role: "user",
-			Content: `
-			Read the TASKS.md file and do the next task.
-			After each task, update the TASKS.md file to reflect the changes.
-			`,
-		})
-		if YesNoQuestion(fmt.Sprintf("Has all the tasks been completed? %s", response)) {
 
+	for {
+		response := handleChatCompletion(MODEL_BIG, &genai.Content{
+			Role: genai.RoleUser,
+			Parts: []*genai.Part{
+				genai.NewPartFromText(`
+				Read the TASKS.md file and do the next task.
+				After each task, update the TASKS.md file to reflect the changes.
+				`),
+			},
+		})
+		tasks, err := os.ReadFile(filepath.Join(workingDirectory, "TASKS.md"))
+		if err != nil {
+			fmt.Printf("Error reading TASKS.md: %s", err)
+			os.Exit(1)
+		}
+		if YesNoQuestion(fmt.Sprintf(`Has all the tasks been completed?
+		
+		Tasks:
+		%s
+		
+		Response:
+		%s
+		
+		`, string(tasks), response)) {
 			inputPath := filepath.Join(workingDirectory, "INPUT.md")
 			err := os.WriteFile(inputPath, []byte{}, 0644)
 			if err != nil {
