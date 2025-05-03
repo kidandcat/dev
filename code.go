@@ -258,22 +258,28 @@ func AddOrEditFunction(path string, functionName string, functionBody string) ma
 }
 
 func autoImport(path string) {
+	if !strings.HasSuffix(path, ".go") {
+		return
+	}
+
 	filename := Path(path)
 	src, err := os.ReadFile(filename)
 	if err != nil {
-		log.Fatalf("Error reading file: %v", err)
+		log.Printf("Error reading file: %v", err)
+		return
 	}
 
 	processedSrc, err := imports.Process(filename, src, nil)
 	if err != nil {
-		log.Fatalf("Error processing file with goimports: %v", err)
+		log.Printf("Error processing file with goimports: %v", err)
+		return
 	}
 
 	// If the processed content is different from the original, write it back
 	if !bytes.Equal(src, processedSrc) {
 		err = os.WriteFile(filename, processedSrc, 0644)
 		if err != nil {
-			log.Fatalf("Error writing processed file: %v", err)
+			log.Printf("Error writing processed file: %v", err)
 		}
 		fmt.Printf("Processed and updated %s\n", filename)
 	} else {

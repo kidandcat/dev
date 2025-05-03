@@ -1,4 +1,5 @@
-- [ ] Implement the `wiki.go` file. It should have a function which generates high level documentation of the project using AI with `handleChatCompletion` from agent.go.
-- [ ] Add a function to `wiki.go` that checks the latest modification date of project files and updates wiki files if project files are newer.
-- [ ] Call the wiki update function in `main.go` after the main loop.
-- [ ] Ensure the wiki generator uses markdown files for documentation.
+- [ ] Implement a wiki.go file, add a function which checks the latest date the files in the project were modified. If the latest one is earlier than the dates of the wiki files, update the wiki files.
+- [ ] This function should be called in the main.go file, after the main loop, when all the tasks are completed.
+- [ ] The wiki generator should use markdown files to write the documentation.
+- [ ] The wiki folder should contain a markdown file per folder with Go code.
+- [ ] It should document every function, struct, and variable inside that package.
