@@ -147,7 +147,49 @@ func WriteFile(path string, content string) string {
 		return "Cannot write to Go files directly. Use code functions instead."
 	}
 
-	err := os.WriteFile(path, []byte(content), 0644)
+	// Check if content contains partial patch markers
+	hasPartialPatch := strings.Contains(content, "// rest of the code...") ||
+		strings.Contains(content, "// ... existing code ...") ||
+		strings.Contains(content, "// ...")
+
+	var finalContent string
+	if hasPartialPatch {
+		// Read existing file content
+		existingContent, err := os.ReadFile(path)
+		if err != nil && !os.IsNotExist(err) {
+			return fmt.Sprintf("Error reading existing file: %v", err)
+		}
+
+		// If file doesn't exist, treat as new file
+		if os.IsNotExist(err) {
+			finalContent = content
+		} else {
+			// Split content into lines for processing
+			existingLines := strings.Split(string(existingContent), "\n")
+			newLines := strings.Split(content, "\n")
+			var mergedLines []string
+
+			// Process each line of new content
+			for i := 0; i < len(newLines); i++ {
+				line := newLines[i]
+				if strings.Contains(line, "// rest of the code...") ||
+					strings.Contains(line, "// ... existing code ...") ||
+					strings.Contains(line, "// ...") {
+					// When we hit a marker, include the rest of the existing content
+					mergedLines = append(mergedLines, existingLines...)
+					break
+				}
+				mergedLines = append(mergedLines, line)
+			}
+
+			// Join the lines back together
+			finalContent = strings.Join(mergedLines, "\n")
+		}
+	} else {
+		finalContent = content
+	}
+
+	err := os.WriteFile(path, []byte(finalContent), 0644)
 	if err != nil {
 		return fmt.Sprintf("Error writing to file: %v", err)
 	}
@@ -158,7 +200,7 @@ func WriteFile(path string, content string) string {
 		lint = ""
 	}
 
-	return fmt.Sprintf("Path: %s\n\nNew content:\n%s\n\n---\n\nLinter results:\n%s", path, content, lint)
+	return fmt.Sprintf("Path: %s\n\nNew content:\n%s\n\n---\n\nLinter results:\n%s", path, finalContent, lint)
 }
 
 func MkDir(path string) string {
