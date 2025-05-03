@@ -1,1 +1,0 @@
-Update the code in main.go to erase the content of the INPUT.md file when all the tasks are completed, before finishing the main() function.
