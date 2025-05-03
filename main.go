@@ -30,14 +30,16 @@ func main() {
 		}
 	}
 
-	client = openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+	config := openai.DefaultConfig(os.Getenv("GEMINI_API_KEY"))
+	config.BaseURL = "https://generativelanguage.googleapis.com/v1beta/openai/"
+	client = openai.NewClientWithConfig(config)
 
 	if _, err := os.Stat(filepath.Join(workingDirectory, "INPUT.md")); os.IsNotExist(err) {
 		fmt.Printf("Input file INPUT.md does not exist in the working directory %s", workingDirectory)
 		os.Exit(1)
 	}
 
-	handleChatCompletion(MODEL_GPT41, openai.ChatCompletionMessage{
+	handleChatCompletion(MODEL_BIG, openai.ChatCompletionMessage{
 		Role: "user",
 		Content: `
 		Open a file called INPUT.md and read the content.
@@ -47,7 +49,7 @@ func main() {
 		`,
 	})
 	for {
-		response := handleChatCompletion(MODEL_GPT41, openai.ChatCompletionMessage{
+		response := handleChatCompletion(MODEL_BIG, openai.ChatCompletionMessage{
 			Role: "user",
 			Content: `
 			Read the TASKS.md file and do the next task.

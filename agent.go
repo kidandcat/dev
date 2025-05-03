@@ -7,13 +7,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/openai/openai-go/shared"
 	openai "github.com/sashabaranov/go-openai"
 )
 
 const (
-	MODEL_GPT41 = shared.ChatModel("gpt-4.1-2025-04-14")
-	MODEL_NANO  = shared.ChatModel("gpt-4.1-nano-2025-04-14")
+	// MODEL_BIG   = shared.ChatModel("gpt-4.1-2025-04-14")
+	// MODEL_SMALL = shared.ChatModel("gpt-4.1-nano-2025-04-14")
+
+	MODEL_BIG   = "gemini-2.5-flash-preview-04-17"
+	MODEL_SMALL = "gemini-2.0-flash-lite"
 )
 
 var messages []openai.ChatCompletionMessage
@@ -83,7 +85,7 @@ func YesNoQuestion(question string) bool {
 	response, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: MODEL_NANO,
+			Model: MODEL_SMALL,
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    "system",

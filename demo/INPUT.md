@@ -1,1 +1,0 @@
-Change the query parameter "q" to "name"
