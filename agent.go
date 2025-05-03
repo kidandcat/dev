@@ -53,13 +53,12 @@ func handleChatCompletion(model string, msg *genai.Content) string {
 	log.Printf("Assistant: %s", content)
 
 	toolCalls := response.FunctionCalls()
-	log.Printf("Tool calls: %v", len(toolCalls))
 	parts := []*genai.Part{}
 	for _, toolCall := range toolCalls {
 		if toolCall.Name == "continue" {
 			return "Continue"
 		}
-		log.Printf("Tool call: %s(%s)", toolCall.Name, toolCall.Args)
+		log.Printf("Tool call: %s", toolCall.Name)
 		parts = append(parts, handleToolCall(toolCall))
 	}
 	if len(parts) > 0 {

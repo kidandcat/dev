@@ -67,7 +67,7 @@ func main() {
 	})
 
 	for {
-		response := handleChatCompletion(MODEL_SMALL, &genai.Content{
+		response := handleChatCompletion(MODEL_BIG, &genai.Content{
 			Role: genai.RoleUser,
 			Parts: []*genai.Part{
 				genai.NewPartFromText(`
