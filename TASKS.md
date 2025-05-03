@@ -1,0 +1,18 @@
+- [ ] Task 1: Implement the `wiki.go` file.
+	- [ ] Implementation
+	- [ ] Tests
+- [ ] Task 2: Add a function to `wiki.go` that checks the latest modification date of project files and updates wiki files if project files are newer.
+	- [ ] Implementation	
+	- [ ] Tests
+- [ ] Task 3: Call the wiki update function in `main.go` after the main loop.
+	- [ ] Implementation
+	- [ ] Tests
+- [ ] Task 4: Ensure the wiki generator uses markdown files for documentation.
+	- [ ] Implementation
+	- [ ] Tests
+- [ ] Task 5: Structure the wiki output into a 'wiki' folder with a markdown file for each folder containing Go code.
+	- [ ] Implementation
+	- [ ] Tests
+- [ ] Task 6: Document all functions, structs, and variables within each Go package in the corresponding wiki markdown file.
+	- [ ] Implementation
+	- [ ] Tests

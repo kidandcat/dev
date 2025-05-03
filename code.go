@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,6 +13,8 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
+
+	"golang.org/x/tools/imports"
 )
 
 func Lint(path string) map[string]any {
@@ -52,6 +55,8 @@ func Lint(path string) map[string]any {
 			"error": string(output),
 		}
 	}
+
+	autoImport(path)
 
 	return map[string]any{
 		"results": "No errors found",
@@ -249,5 +254,29 @@ func AddOrEditFunction(path string, functionName string, functionBody string) ma
 	return map[string]any{
 		"results": "Function successfully added/edited",
 		"lint":    lintResult,
+	}
+}
+
+func autoImport(path string) {
+	filename := Path(path)
+	src, err := os.ReadFile(filename)
+	if err != nil {
+		log.Fatalf("Error reading file: %v", err)
+	}
+
+	processedSrc, err := imports.Process(filename, src, nil)
+	if err != nil {
+		log.Fatalf("Error processing file with goimports: %v", err)
+	}
+
+	// If the processed content is different from the original, write it back
+	if !bytes.Equal(src, processedSrc) {
+		err = os.WriteFile(filename, processedSrc, 0644)
+		if err != nil {
+			log.Fatalf("Error writing processed file: %v", err)
+		}
+		fmt.Printf("Processed and updated %s\n", filename)
+	} else {
+		fmt.Printf("%s is already correctly formatted and imported.\n", filename)
 	}
 }
