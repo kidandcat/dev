@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 
 	"google.golang.org/genai"
 )
@@ -179,7 +180,7 @@ func ToolCall(toolCall *genai.FunctionCall) map[string]any {
 	case "search_text":
 		return SearchText(getString(toolCall.Args["query"]))
 	case "read_code":
-		return ReadCode(getString(toolCall.Args["path"]), getString(toolCall.Args["functions"]))
+		return ReadCode(getString(toolCall.Args["path"]), getMultipleStrings(toolCall.Args["functions"])...)
 	case "add_or_edit_function":
 		return AddOrEditFunction(getString(toolCall.Args["path"]), getString(toolCall.Args["function_name"]), getString(toolCall.Args["function_body"]))
 	}
@@ -188,11 +189,38 @@ func ToolCall(toolCall *genai.FunctionCall) map[string]any {
 	}
 }
 
+func getMultipleStrings(data any) []string {
+	if data == nil {
+		return []string{}
+	}
+	switch v := data.(type) {
+	case string:
+		return []string{v}
+	case []string:
+		return v
+	case []any:
+		result := make([]string, len(v))
+		for i, item := range v {
+			result[i] = getString(item)
+		}
+		return result
+	default:
+		return []string{}
+	}
+}
+
 func getString(data any) string {
 	if data == nil {
 		return ""
 	}
-	return data.(string)
+	switch v := data.(type) {
+	case string:
+		return v
+	case int:
+		return strconv.Itoa(v)
+	default:
+		return ""
+	}
 }
 
 func getMap(data any) map[string]string {
