@@ -60,7 +60,7 @@ func main() {
 		Parts: []*genai.Part{
 			genai.NewPartFromText(`
 			Open a file called INPUT.md and read the content.
-			Split the content of the INPUT.md file into tasks and add them to the markdown checklist in the TASKS.md file.
+			Process the content of the INPUT.md file into independent, small tasks and add them to the markdown checklist in the TASKS.md file.
 
 			If the file TASKS.md does not exist, create it.
 			`),
@@ -97,12 +97,6 @@ func main() {
 			log.Printf("Tasks not completed, continuing")
 			continue
 		}
-		// Erase the INPUT.md file
-		inputPath := filepath.Join(workingDirectory, "INPUT.md")
-		err = os.WriteFile(inputPath, []byte{}, 0644)
-		if err != nil {
-			fmt.Printf("Error erasing INPUT.md: %s", err)
-		}
 		if ArePendingTodos() {
 			diff, err := exec.Command("git", "diff").Output()
 			if err != nil {
@@ -122,11 +116,19 @@ func main() {
 			})
 			log.Printf("There are pending todos, continuing")
 			continue
-		} else {
-			log.Printf("No more tasks, no pending todos, generating wiki")
-			GenWiki()
-			break
 		}
+		// Finished all tasks, no pending todos
+		log.Printf("No more tasks, no pending todos, generating wiki")
+		GenWiki()
+		// Erase the INPUT.md file
+		if err := os.WriteFile(filepath.Join(workingDirectory, "INPUT.md"), []byte{}, 0644); err != nil {
+			fmt.Printf("Error erasing INPUT.md: %s", err)
+		}
+		// Erase the TASKS.md file
+		if err := os.WriteFile(filepath.Join(workingDirectory, "TASKS.md"), []byte{}, 0644); err != nil {
+			fmt.Printf("Error erasing TASKS.md: %s", err)
+		}
+		break
 	}
 }
 

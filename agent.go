@@ -50,8 +50,10 @@ func handleChatCompletion(model string, msg *genai.Content) string {
 	}
 
 	messages = append(messages, response.Candidates[0].Content)
-	content := response.Candidates[0].Content.Parts[0].Text
-	log.Printf("Assistant: %s", content)
+	if len(response.Candidates[0].Content.Parts) > 0 {
+		content := response.Candidates[0].Content.Parts[0].Text
+		log.Printf("Assistant: %s", content)
+	}
 
 	toolCalls := response.FunctionCalls()
 	parts := []*genai.Part{}

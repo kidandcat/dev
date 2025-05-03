@@ -295,7 +295,10 @@ func searchTextRecursive(dir string, query string) map[string]any {
 			// Recursively search subdirectories
 			subResults := searchTextRecursive(filePath, query)
 			if subResults["error"] != "No results found" {
-				results = append(results, subResults["results"].(string))
+				if subResults["results"] != nil {
+					subResultsList := subResults["results"].([]string)
+					results = append(results, subResultsList...)
+				}
 			}
 			continue
 		}

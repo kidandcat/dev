@@ -1,6 +1,6 @@
 # file.go
 
-This file contains functions for interacting with the file system.
+This file contains functions for interacting with the file system. These functions allow the agent to read, write, and manipulate files and directories.
 
 ## Types
 
@@ -18,3 +18,7 @@ This file contains functions for interacting with the file system.
 -   `SearchTextfunc`: Searches for text in the working directory.
 -   `searchTextRecursivefunc`: Recursively searches for text in a directory.
 -   `Pathfunc`: Resolves a path relative to the working directory.
+
+## File System Interaction
+
+The functions in this file provide the agent with the ability to navigate the file system, read file contents, write new files, and create directories. This is essential for the agent's ability to modify the codebase and manage its own files.

@@ -1,4 +1,0 @@
-- [x] Create a good readme for this project
-- [x] Analyze the code in the current directory and generate high level documentation for the code.
-- [x] Analyze the existing documentation in the wiki folder.
-- [x] Write the documentation in markdown files in the wiki folder.

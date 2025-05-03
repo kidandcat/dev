@@ -1,6 +1,6 @@
 # agent.go
 
-This file defines the agent's core logic and interaction with the Gemini API.
+This file defines the agent's core logic and interaction with the environment. It handles the agent's decision-making process, tool selection, and communication with the Gemini API.
 
 ## Constants
 
@@ -18,3 +18,7 @@ This file defines the agent's core logic and interaction with the Gemini API.
 -   `handleChatCompletionfunc`: Handles chat completions using the Gemini API.
 -   `handleToolCallfunc`: Handles tool calls from the Gemini API.
 -   `YesNoQuestionfunc`: Asks a yes/no question and returns the answer.
+
+## Core Logic
+
+The agent uses a combination of the Gemini API and available tools to accomplish tasks. It maintains a conversation history to provide context for its decisions. The `temperature` variable controls the randomness of the agent's responses.
