@@ -176,6 +176,13 @@ func GetTools() []openai.Tool {
 		{
 			Type: openai.ToolTypeFunction,
 			Function: &openai.FunctionDefinition{
+				Name:        "fetch_wiki_docs",
+				Description: "Fetch the documentation from the wiki folder",
+			},
+		},
+		{
+			Type: openai.ToolTypeFunction,
+			Function: &openai.FunctionDefinition{
 				Name:        "continue",
 				Description: "Continue with the next task",
 			},
@@ -252,6 +259,8 @@ func ToolCall(toolCall openai.ToolCall) string {
 			return fmt.Sprintf("Error unmarshalling path: %s", err)
 		}
 		return MkDir(arguments.Path)
+	case "fetch_wiki_docs":
+		return FetchWikiDocs()
 	case "lint_file":
 		var arguments struct {
 			Path string `json:"path"`

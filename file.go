@@ -161,6 +161,30 @@ func MkDir(path string) string {
 	return fmt.Sprintf("Directory created: %s", path)
 }
 
+func FetchWikiDocs() string {
+	wikiPath := "wiki"
+	files, err := os.ReadDir(wikiPath)
+	if err != nil {
+		return fmt.Sprintf("Error reading wiki directory: %v", err)
+	}
+
+	var docs []string
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".md") {
+			content, err := os.ReadFile(filepath.Join(wikiPath, file.Name()))
+			if err != nil {
+				docs = append(docs, fmt.Sprintf("Error reading %s: %v", file.Name(), err))
+				continue
+			}
+			docs = append(docs, fmt.Sprintf("File: %s\n\nContent:\n%s", file.Name(), content))
+		}
+	}
+	if len(docs) == 0 {
+		return "No Markdown files found in wiki."
+	}
+	return strings.Join(docs, "\n\n---\n\n")
+}
+
 func SearchText(query string) string {
 	return searchTextRecursive(workingDirectory, query)
 }
