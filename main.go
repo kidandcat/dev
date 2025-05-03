@@ -30,7 +30,12 @@ func main() {
 		}
 	}
 
-	config := openai.DefaultConfig(os.Getenv("GEMINI_API_KEY"))
+	key := os.Getenv("GEMINI_API_KEY")
+	if key == "" {
+		fmt.Printf("GEMINI_API_KEY is not set")
+		os.Exit(1)
+	}
+	config := openai.DefaultConfig(key)
 	config.BaseURL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 	client = openai.NewClientWithConfig(config)
 
