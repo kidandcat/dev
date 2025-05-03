@@ -162,13 +162,6 @@ func ReadFile(path string, offset int, length int) map[string]any {
 func WriteFile(path string, content string) map[string]any {
 	path = Path(path)
 
-	// Reject if path points to a Go file
-	if strings.HasSuffix(path, ".go") {
-		return map[string]any{
-			"error": "Cannot write to Go files directly. Use code functions instead.",
-		}
-	}
-
 	// Check if content contains partial patch markers
 	hasPartialPatch := strings.Contains(content, "// rest of the code...") ||
 		strings.Contains(content, "// ... existing code ...") ||
@@ -188,6 +181,13 @@ func WriteFile(path string, content string) map[string]any {
 		if os.IsNotExist(err) {
 			finalContent = content
 		} else {
+			// Reject if path points to a Go file
+			if strings.HasSuffix(path, ".go") {
+				return map[string]any{
+					"error": "Cannot write to Go files directly. Use code functions instead.",
+				}
+			}
+
 			// Split content into lines for processing
 			existingLines := strings.Split(string(existingContent), "\n")
 			newLines := strings.Split(content, "\n")
