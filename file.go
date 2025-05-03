@@ -184,7 +184,7 @@ func WriteFile(path string, content string) map[string]any {
 			// Reject if path points to a Go file
 			if strings.HasSuffix(path, ".go") {
 				return map[string]any{
-					"error": "Cannot write to Go files directly. Use code functions instead.",
+					"error": "Cannot write to existing Go files directly. Use code functions instead.",
 				}
 			}
 

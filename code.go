@@ -71,6 +71,26 @@ func ReadCode(path string, functions ...string) map[string]any {
 		}
 	}
 
+	// Check if the file exists
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		// Get the package name from the go.mod file
+		mod, err := os.ReadFile(filepath.Join(filepath.Dir(path), "go.mod"))
+		if err != nil {
+			return map[string]any{
+				"error": fmt.Sprintf("Error reading go.mod file: %s", err),
+			}
+		}
+		modString := string(mod)
+		packageName := strings.TrimSpace(strings.Split(modString, "\n")[0])
+		// Create from template
+		content = []byte(fmt.Sprintf("package %s\n\n", packageName))
+		if err := os.WriteFile(path, content, 0644); err != nil {
+			return map[string]any{
+				"error": fmt.Sprintf("Error creating file: %s", err),
+			}
+		}
+	}
+
 	// Parse the Go file
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, content, parser.ParseComments)
