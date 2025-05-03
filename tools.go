@@ -194,6 +194,55 @@ func GetTools() []openai.Tool {
 				Description: "Exit the program (only when all tasks are completed)",
 			},
 		},
+		{
+			Type: openai.ToolTypeFunction,
+			Function: &openai.FunctionDefinition{
+				Name:        "read_code",
+				Description: "Read the code of specified functions from a Go file, returning the full file with only the specified functions' bodies",
+				Parameters: jsonschema.Definition{
+					Type: jsonschema.Object,
+					Properties: map[string]jsonschema.Definition{
+						"path": {
+							Type:        jsonschema.String,
+							Description: "The path to the Go file to read",
+						},
+						"functions": {
+							Type:        jsonschema.Array,
+							Description: "List of function names to keep the full body of",
+							Items: &jsonschema.Definition{
+								Type: jsonschema.String,
+							},
+						},
+					},
+					Required: []string{"path"},
+				},
+			},
+		},
+		{
+			Type: openai.ToolTypeFunction,
+			Function: &openai.FunctionDefinition{
+				Name:        "add_or_edit_function",
+				Description: "Add a new function to a Go file or edit an existing function",
+				Parameters: jsonschema.Definition{
+					Type: jsonschema.Object,
+					Properties: map[string]jsonschema.Definition{
+						"path": {
+							Type:        jsonschema.String,
+							Description: "The path to the Go file to modify",
+						},
+						"function_name": {
+							Type:        jsonschema.String,
+							Description: "The name of the function to add or edit",
+						},
+						"function_body": {
+							Type:        jsonschema.String,
+							Description: "The complete function body to add or replace",
+						},
+					},
+					Required: []string{"path", "function_name", "function_body"},
+				},
+			},
+		},
 	}
 }
 
@@ -284,6 +333,27 @@ func ToolCall(toolCall openai.ToolCall) string {
 		os.WriteFile("INPUT.md", []byte(""), 0644)
 		time.Sleep(2 * time.Second)
 		os.Exit(0)
+	case "read_code":
+		var arguments struct {
+			Path      string   `json:"path"`
+			Functions []string `json:"functions"`
+		}
+		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
+		if err != nil {
+			return fmt.Sprintf("Error unmarshalling arguments: %s", err)
+		}
+		return ReadCode(arguments.Path, arguments.Functions...)
+	case "add_or_edit_function":
+		var arguments struct {
+			Path         string `json:"path"`
+			FunctionName string `json:"function_name"`
+			FunctionBody string `json:"function_body"`
+		}
+		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
+		if err != nil {
+			return fmt.Sprintf("Error unmarshalling arguments: %s", err)
+		}
+		return AddOrEditFunction(arguments.Path, arguments.FunctionName, arguments.FunctionBody)
 	}
 	return fmt.Sprintf("Unknown tool call: %s", toolCall.Function.Name)
 }
