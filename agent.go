@@ -13,7 +13,8 @@ const (
 	// MODEL_BIG   = shared.ChatModel("gpt-4.1-2025-04-14")
 	// MODEL_SMALL = shared.ChatModel("gpt-4.1-nano-2025-04-14")
 
-	MODEL_BIG   = "gemini-2.5-flash-preview-04-17"
+	// MODEL_BIG   = "gemini-2.5-flash-preview-04-17"
+	MODEL_BIG   = "gemini-2.0-flash"
 	MODEL_SMALL = "gemini-2.0-flash-lite"
 )
 
