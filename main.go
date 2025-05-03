@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"google.golang.org/genai"
@@ -90,7 +91,7 @@ func main() {
 			fmt.Printf("Error reading TASKS.md: %s", err)
 			os.Exit(1)
 		}
-		if YesNoQuestion(fmt.Sprintf(`Has all the tasks been completed?
+		if !YesNoQuestion(fmt.Sprintf(`Has all the tasks been completed?
 		
 		Tasks:
 		%s
@@ -99,18 +100,49 @@ func main() {
 		%s
 		
 		`, string(tasks), response)) {
-			inputPath := filepath.Join(workingDirectory, "INPUT.md")
-			err := os.WriteFile(inputPath, []byte{}, 0644)
+			continue
+		}
+		// Erase the INPUT.md file
+		inputPath := filepath.Join(workingDirectory, "INPUT.md")
+		err = os.WriteFile(inputPath, []byte{}, 0644)
+		if err != nil {
+			fmt.Printf("Error erasing INPUT.md: %s", err)
+		}
+		if ArePendingTodos() {
+			diff, err := exec.Command("git", "diff").Output()
 			if err != nil {
-				fmt.Printf("Error erasing INPUT.md: %s", err)
+				fmt.Printf("Error running git diff: %s", err)
+				os.Exit(1)
 			}
+			handleChatCompletion(MODEL_BIG, &genai.Content{
+				Role: genai.RoleUser,
+				Parts: []*genai.Part{
+					genai.NewPartFromText(fmt.Sprintf(`
+					Create tasks in the TASKS.md file to implement the missing functionality based on the TODOs, placeholders, etc. in the following git diff:
+
+					git diff:
+					%s
+					`, string(diff))),
+				},
+			})
+			continue
+		} else {
+			// No more tasks, no pending todos, break the loop
 			break
 		}
 	}
+}
 
-	err = UpdateWikiIfNecessary()
+func ArePendingTodos() bool {
+	diff, err := exec.Command("git", "diff").Output()
 	if err != nil {
-		fmt.Printf("Error updating wiki: %s", err)
-
+		fmt.Printf("Error running git diff: %s", err)
+		return false
 	}
+
+	return YesNoQuestion(fmt.Sprintf(`
+	Check if there are any TODOs, placeholders, etc. in the following git diff:
+	
+	%s
+	`, string(diff)))
 }
