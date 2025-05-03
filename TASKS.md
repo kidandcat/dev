@@ -17,3 +17,4 @@
 - [x] Run tests after each file modification.
 - [x] Make a commit per step.
 - [x] Add a new tool to fetch the documentation, it should return the content of all the markdown files in the `wiki` folder as a string for the LLM to use.
+- [x] Update the code in main.go to erase the content of the INPUT.md file when all the tasks are completed, before finishing the main() function.

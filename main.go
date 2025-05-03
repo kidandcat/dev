@@ -20,7 +20,7 @@ func main() {
 		fmt.Printf("Working directory %s does not exist", workingDirectory)
 		os.Exit(1)
 	}
-	// if working directory is not absolute, convert to absolute path
+
 	if !filepath.IsAbs(workingDirectory) {
 		var err error
 		workingDirectory, err = filepath.Abs(workingDirectory)
@@ -32,7 +32,6 @@ func main() {
 
 	client = openai.NewClient(os.Getenv("OPENAI_API_KEY"))
 
-	// check that a file INPUT.md exists in the working directory
 	if _, err := os.Stat(filepath.Join(workingDirectory, "INPUT.md")); os.IsNotExist(err) {
 		fmt.Printf("Input file INPUT.md does not exist in the working directory %s", workingDirectory)
 		os.Exit(1)
@@ -56,6 +55,12 @@ func main() {
 			`,
 		})
 		if YesNoQuestion(fmt.Sprintf("Has all the tasks been completed? %s", response)) {
+
+			inputPath := filepath.Join(workingDirectory, "INPUT.md")
+			err := os.WriteFile(inputPath, []byte{}, 0644)
+			if err != nil {
+				fmt.Printf("Error erasing INPUT.md: %s", err)
+			}
 			break
 		}
 	}
