@@ -97,4 +97,5 @@ func main() {
 			break
 		}
 	}
+	updateWikiIfProjectNewer()
 }
