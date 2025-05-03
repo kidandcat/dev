@@ -1,7 +1,7 @@
 # wiki.go
 
-This file likely contains functions for managing the wiki itself.
+This file contains functions for generating the project wiki.
 
 ## Functions
 
-(Function details will be added later)
+-   `GenWikifunc`: Generates the project wiki.

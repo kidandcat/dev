@@ -1,7 +1,12 @@
 # web.go
 
-This file likely contains functions for interacting with web pages.
+This file contains functions for interacting with the web.
+
+## Types
+
+-   `WebSearchResult`: Represents a web search result.
 
 ## Functions
 
-(Function details will be added later)
+-   `WebSourcefunc`: Visits a web page and returns the source HTML.
+-   `WebSearchfunc`: Searches the web for a query.

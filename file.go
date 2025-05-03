@@ -88,10 +88,12 @@ func ListDirectory(path string, depth int) map[string]any {
 		if file.IsDir() && depth > 1 {
 			subPath := filepath.Join(path, file.Name())
 			subFiles := ListDirectory(subPath, depth-1)
-			if subFiles["error"] != "" && subFiles["error"] != "Empty directory" {
-				subFileList := strings.Split(subFiles["files"].(string), "\n")
-				for _, subFile := range subFileList {
-					fileNames = append(fileNames, filepath.Join(relativePath, subFile))
+			if subFiles["error"] != "Empty directory" {
+				if subFiles["files"] != nil {
+					subFileList := subFiles["files"].([]string)
+					for _, subFile := range subFileList {
+						fileNames = append(fileNames, filepath.Join(relativePath, subFile))
+					}
 				}
 			}
 		}
