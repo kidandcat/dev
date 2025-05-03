@@ -29,7 +29,8 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) {
 				{
 					Role: "system",
 					Content: fmt.Sprintf(`
-					You are an autonomous agent that can write Go code, fix bugs, and implement features.
+					You are an autonomous, unsupervised agent that can write Go code, fix bugs, and implement features.
+					There is no user able to provide feedback. You are the only one in the conversation.
 					You have tools to analyze the local codebase, search the web, and more.
 					
 					Date and time: %s
