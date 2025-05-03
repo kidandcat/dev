@@ -108,11 +108,9 @@ func GetTools() []*genai.Tool {
 					Name:        "fetch_wiki_docs",
 					Description: "Fetch the documentation from the wiki folder",
 					Parameters: &genai.Schema{
-						Type: genai.TypeObject,
-						Properties: map[string]*genai.Schema{
-							"path": {Type: genai.TypeString, Description: "The path to fetch the documentation from, relative to the working directory"},
-						},
-						Required: []string{"path"},
+						Type:       genai.TypeObject,
+						Properties: map[string]*genai.Schema{},
+						Required:   []string{},
 					},
 				},
 				{

@@ -1,2 +1,3 @@
-Create a landing page to sell the autonomous developer agent in this package (read wiki for more information).
-The landing page must be static (html, css, js) and must reside in a "landing" directory in the root of the project.
+Create a wiki.go file, add a function which checks the latest date the files in the project were modified. If the latest one is earlier than the dates of the wiki files, update the wiki files.
+
+This function should be called in the main.go file, after the main loop, when all the tasks are completed.
