@@ -30,7 +30,7 @@ func main() {
 		}
 	}
 
-	client = openai.NewClient("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")
+	client = openai.NewClient(os.Getenv("OPENAI_API_KEY"))
 
 	// check that a file INPUT.md exists in the working directory
 	if _, err := os.Stat(filepath.Join(workingDirectory, "INPUT.md")); os.IsNotExist(err) {
