@@ -12,10 +12,10 @@ var client *openai.Client
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run main.go <working directory>")
-		os.Exit(1)
+		workingDirectory = "."
+	} else {
+		workingDirectory = os.Args[1]
 	}
-	workingDirectory = os.Args[1]
 	if _, err := os.Stat(workingDirectory); os.IsNotExist(err) {
 		fmt.Printf("Working directory %s does not exist", workingDirectory)
 		os.Exit(1)
