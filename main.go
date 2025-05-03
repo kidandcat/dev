@@ -58,8 +58,16 @@ func main() {
 		Parts: []*genai.Part{
 			genai.NewPartFromText(`
 			Open a file called INPUT.md and read the content.
-			Add new tasks based on the content of the INPUT.md file to the markdown checklist in the TASKS.md file.
-			
+			Split the content of the INPUT.md file into tasks and add them to the markdown checklist in the TASKS.md file.
+
+			Follow this template:
+			- [ ] Task 1: Detailed description of the task.
+				- [ ] Implementation
+				- [ ] Tests
+			- [ ] Task 2: Detailed description of the task.
+				- [ ] Implementation
+				- [ ] Tests
+
 			If the file TASKS.md does not exist, create it.
 			`),
 		},
@@ -72,6 +80,8 @@ func main() {
 				genai.NewPartFromText(`
 				Read the TASKS.md file and do the next task.
 				After each task, update the TASKS.md file to reflect the changes.
+
+				Do not use placeholders, todo, etc. The task must be completed, including tests.
 				`),
 			},
 		})
@@ -97,5 +107,4 @@ func main() {
 			break
 		}
 	}
-	updateWikiIfProjectNewer()
 }
