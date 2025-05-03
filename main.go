@@ -61,14 +61,6 @@ func main() {
 			Open a file called INPUT.md and read the content.
 			Split the content of the INPUT.md file into tasks and add them to the markdown checklist in the TASKS.md file.
 
-			Follow this template:
-			- [ ] Task 1: Detailed description of the task.
-				- [ ] Implementation
-				- [ ] Tests
-			- [ ] Task 2: Detailed description of the task.
-				- [ ] Implementation
-				- [ ] Tests
-
 			If the file TASKS.md does not exist, create it.
 			`),
 		},
