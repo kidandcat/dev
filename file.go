@@ -111,6 +111,11 @@ func ReadFile(path string, offset int, length int) string {
 
 	path = Path(path)
 
+	// Reject if path points to a Go file
+	if strings.HasSuffix(path, ".go") {
+		return "Cannot read Go files directly. Use code functions instead."
+	}
+
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Sprintf("Error reading file: %v", err)
@@ -136,6 +141,11 @@ func ReadFile(path string, offset int, length int) string {
 
 func WriteFile(path string, content string) string {
 	path = Path(path)
+
+	// Reject if path points to a Go file
+	if strings.HasSuffix(path, ".go") {
+		return "Cannot write to Go files directly. Use code functions instead."
+	}
 
 	err := os.WriteFile(path, []byte(content), 0644)
 	if err != nil {
