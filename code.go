@@ -148,6 +148,17 @@ func AddOrEditFunction(path string, functionName string, functionBody string) ma
 		}
 	}
 
+	// Check if the file exists
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		// File do not exists, create it
+		os.Create(path)
+		content, err = os.ReadFile(path)
+		if err != nil {
+			return map[string]any{
+				"error": fmt.Sprintf("Error reading file: %s", err),
+			}
+		}
+	}
 	// Parse the Go file
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, path, content, parser.ParseComments)
