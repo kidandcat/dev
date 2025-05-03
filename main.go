@@ -81,7 +81,7 @@ func main() {
 				Read the TASKS.md file and do the next task.
 				After each task, update the TASKS.md file to reflect the changes.
 
-				Do not use placeholders, todo, etc. The task must be completed, including tests.
+				Do not leave TODOs, placeholders, etc. The whole functionality must be implemented.
 				`),
 			},
 		})
@@ -106,5 +106,11 @@ func main() {
 			}
 			break
 		}
+	}
+
+	err = UpdateWikiIfNecessary()
+	if err != nil {
+		fmt.Printf("Error updating wiki: %s", err)
+
 	}
 }
