@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/openai/openai-go/shared"
@@ -18,7 +19,7 @@ const (
 var messages []openai.ChatCompletionMessage
 var workingDirectory string
 
-func handleChatCompletion(model string, msg openai.ChatCompletionMessage) {
+func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string {
 	messages = append(messages, msg)
 
 	response, err := client.CreateChatCompletion(
@@ -44,7 +45,7 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) {
 	)
 	if err != nil {
 		log.Printf("Error creating chat completion for (%#v): %v", msg, err)
-		return
+		return fmt.Sprintf("Error creating chat completion for (%#v): %v", msg, err)
 	}
 
 	messages = append(messages, response.Choices[0].Message)
@@ -54,15 +55,14 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) {
 
 	for _, toolCall := range response.Choices[0].Message.ToolCalls {
 		if toolCall.Function.Name == "continue" {
-			log.Println("Continue")
-			return
+			return "Continue"
 		}
 		if toolCall == response.Choices[0].Message.ToolCalls[len(response.Choices[0].Message.ToolCalls)-1] {
-			handleChatCompletion(model, handleToolCall(toolCall))
-			return
+			return handleChatCompletion(model, handleToolCall(toolCall))
 		}
 		messages = append(messages, handleToolCall(toolCall))
 	}
+	return messages[len(messages)-1].Content
 }
 
 func handleToolCall(toolCall openai.ToolCall) openai.ChatCompletionMessage {
@@ -77,4 +77,54 @@ func handleToolCall(toolCall openai.ToolCall) openai.ChatCompletionMessage {
 		Name:       toolCall.Function.Name,
 		ToolCallID: toolCall.ID,
 	}
+}
+
+func YesNoQuestion(question string) bool {
+	response, err := client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model: MODEL_NANO,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    "system",
+					Content: `You must answer the question with a "yes" or "no" tool call.`,
+				},
+				{
+					Role:    "user",
+					Content: question,
+				},
+			},
+			Stream:      false,
+			Temperature: 0.7,
+			Tools: []openai.Tool{
+				{
+					Type: openai.ToolTypeFunction,
+					Function: &openai.FunctionDefinition{
+						Name:        "yes",
+						Description: "Answer affirmatively",
+					},
+				},
+				{
+					Type: openai.ToolTypeFunction,
+					Function: &openai.FunctionDefinition{
+						Name:        "no",
+						Description: "Answer negatively",
+					},
+				},
+			},
+		},
+	)
+	if err != nil {
+		return false
+	}
+	if response.Choices[0].Message.ToolCalls[0].Function.Name == "yes" {
+		return true
+	}
+	if response.Choices[0].Message.ToolCalls[0].Function.Name == "no" {
+		return false
+	}
+	if strings.Contains(response.Choices[0].Message.Content, "yes") {
+		return true
+	}
+	return false
 }

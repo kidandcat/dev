@@ -48,12 +48,15 @@ func main() {
 		`,
 	})
 	for {
-		handleChatCompletion(MODEL_GPT41, openai.ChatCompletionMessage{
+		response := handleChatCompletion(MODEL_GPT41, openai.ChatCompletionMessage{
 			Role: "user",
 			Content: `
 			Read the TASKS.md file and do the next task.
 			After each task, update the TASKS.md file to reflect the changes.
 			`,
 		})
+		if YesNoQuestion(fmt.Sprintf("Has all the tasks been completed? %s", response)) {
+			break
+		}
 	}
 }

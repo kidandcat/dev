@@ -1,2 +1,1 @@
-in file.go, improve the way code is written to a file. The LLM usually give file patches, using comments to indicate where existing code is unmodified.
-Create a tool, which can also use a LLM call, to apply the patch to the file.
+Update the wiki
