@@ -243,7 +243,11 @@ func AddOrEditFunction(path string, functionName string, functionBody string) ma
 		}
 	}
 
+	// Lint the file
+	lintResult := Lint(path)
+
 	return map[string]any{
 		"results": "Function successfully added/edited",
+		"lint":    lintResult,
 	}
 }
