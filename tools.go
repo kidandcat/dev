@@ -57,7 +57,7 @@ func GetTools() []*genai.Tool {
 							"offset": {Type: genai.TypeInteger, Description: "The line to start reading the file from"},
 							"length": {Type: genai.TypeInteger, Description: "The number of lines to read"},
 						},
-						Required: []string{"path", "offset", "length"},
+						Required: []string{"path"},
 					},
 				},
 				{
@@ -74,7 +74,7 @@ func GetTools() []*genai.Tool {
 				},
 				{
 					Name:        "make_directory",
-					Description: "Make a directory",
+					Description: "Create a directory",
 					Parameters: &genai.Schema{
 						Type: genai.TypeObject,
 						Properties: map[string]*genai.Schema{
@@ -132,13 +132,13 @@ func GetTools() []*genai.Tool {
 							"path": {Type: genai.TypeString, Description: "The path to the Go file to read, relative to the working directory"},
 							"functions": {
 								Type:        genai.TypeArray,
-								Description: "The list of function names to keep the full body of",
+								Description: "The list of function names to read the full body of.",
 								Items: &genai.Schema{
 									Type: genai.TypeString,
 								},
 							},
 						},
-						Required: []string{"path", "functions"},
+						Required: []string{"path"},
 					},
 				},
 				{
@@ -149,7 +149,7 @@ func GetTools() []*genai.Tool {
 						Properties: map[string]*genai.Schema{
 							"path":          {Type: genai.TypeString, Description: "The path to the Go file to modify, relative to the working directory"},
 							"function_name": {Type: genai.TypeString, Description: "The name of the function to add or edit"},
-							"function_body": {Type: genai.TypeString, Description: "The complete function body to add or replace"},
+							"function_body": {Type: genai.TypeString, Description: "The code that will go inside the function body"},
 						},
 						Required: []string{"path", "function_name", "function_body"},
 					},

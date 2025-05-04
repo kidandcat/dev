@@ -20,6 +20,10 @@ var temperature float32 = 0.7
 func handleChatCompletion(model string, msg *genai.Content) string {
 	messages = append(messages, msg)
 
+	if len(messages) > 10 {
+		messages = messages[len(messages)-10:]
+	}
+
 	response, err := client.Models.GenerateContent(
 		context.Background(),
 		model,
