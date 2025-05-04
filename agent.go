@@ -37,6 +37,8 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string
 					`, time.Now().Format(time.RFC3339)),
 				},
 			}, messages...),
+			Stream: false,
+			Tools:  GetTools(),
 		},
 	)
 	if err != nil {
