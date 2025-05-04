@@ -52,7 +52,12 @@ func main() {
 
 	if _, err := os.Stat(filepath.Join(workingDirectory, "INPUT.md")); os.IsNotExist(err) {
 		fmt.Printf("Input file INPUT.md does not exist in the working directory %s", workingDirectory)
+		os.Create(filepath.Join(workingDirectory, "INPUT.md"))
 		os.Exit(1)
+	}
+
+	if _, err := os.Stat(filepath.Join(workingDirectory, "TASKS.md")); os.IsNotExist(err) {
+		os.Create(filepath.Join(workingDirectory, "TASKS.md"))
 	}
 
 	handleChatCompletion(MODEL_BIG, &genai.Content{
