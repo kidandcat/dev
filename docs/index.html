@@ -1,18 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Autonomous Agent</title>
+<!-- Tailwind CSS CDN -->
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-<h1>Autonomous Agent</h1>
-<p>This project implements an autonomous, unsupervised agent that can write Go code, fix bugs, and implement features.</p>
-<h2>Available Tools</h2>
-<ul>
+<body class="bg-gray-50 text-gray-800 font-sans">
+<header class="bg-white shadow">
+<div class="max-w-7xl mx-auto py-6 px-4 flex items-center justify-between">
+<h1 class="text-3xl font-bold text-blue-600">Autonomous Agent</h1>
+</div>
+</header>
+<main class="max-w-7xl mx-auto p-4">
+<section class="bg-white rounded-lg shadow p-6 mb-6">
+<h2 class="text-2xl font-semibold mb-4 text-gray-700">About This Project</h2>
+<p class="mb-4">This project implements an autonomous, unsupervised agent capable of writing Go code, fixing bugs, and implementing features. It interacts with the file system, web, and documentation tools to carry out tasks effectively.</p>
+</section>
+<section class="bg-white rounded-lg shadow p-6">
+<h2 class="text-2xl font-semibold mb-4 text-gray-700">Available Tools</h2>
+<ul class=" list-disc list-inside space-y-2">
 <li><b>File System:</b> List directory, Read file, Write file, Make directory, Search text</li>
 <li><b>Code:</b> Lint file, Read code, Add or edit function</li>
 <li><b>Web:</b> Visit web page, Web search</li>
 <li><b>Wiki:</b> Fetch wiki docs</li>
 </ul>
+</section>
+</main>
+<footer class="mt-8 bg-white shadow">
+<div class="max-w-7xl mx-auto py-4 px-4 text-center text-sm text-gray-500">
+&copy; 2025 Autonomous Agent Project. All rights reserved.
+</div>
+</footer>
 </body>
 </html>

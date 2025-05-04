@@ -1,11 +1,11 @@
 # wiki.go
 
-This file contains functions for generating the project wiki.
+This file contains functions for generating and maintaining the project wiki.
 
 ## Functions
 
--   `GenWikifunc`: Generates the project wiki.
+- GenWikifunc: Gathers codebase state and auto-generates corresponding markdown documentation.
 
-## Wiki Generation
+## Purpose
 
-The functions in this file are responsible for creating and updating the project wiki. This ensures that the documentation is always up-to-date and accurate.
+Enforces synchronization between code changes and doc updates across the project, ensuring the wiki always reflects recent changes.

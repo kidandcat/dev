@@ -4,34 +4,34 @@ This file contains functions for reading, linting, and modifying Go code. These 
 
 ## Functions
 
--   `Lint`: Lints a Go file and returns any errors.
+-   Lintfunc: Lints a Go file and returns any errors.
     -   **Parameters:**
-        -   `path` (string): The path to the Go file to lint.
+        -   path (string): The path to the Go file to lint.
     -   **Return Value:**
-        -   (map[string]any): A map containing the linting results. If no errors are found, the map will contain a "results" key with the value "No errors found". If errors are found, the map will contain an "error" key with the error message.
-    -   **Description:** This function lints a Go file using `go mod tidy`, `go vet`, and `go fmt`. It also calls `autoImport` to automatically add missing imports.
--   `ReadCode`: Reads the code of specified functions from a Go file.
+        -   (string): Linting result as a string.
+    -   **Description:** This function calls formatting, vetting, and import management tools to ensure Go files are clean and standardized.
+-   ReadCodefunc: Reads the code of specified functions from a Go file.
     -   **Parameters:**
-        -   `path` (string): The path to the Go file to read.
-        -   `functions` (...string): A list of function names to read.
+        -   path (string): The path to the Go file to read.
+        -   functions (...string): List of function names.
     -   **Return Value:**
-        -   (map[string]any): A map containing the code of the specified functions. The map will contain a "results" key with the code as a string.
-    -   **Description:** This function reads the code of the specified functions from a Go file. It returns the full file with only the specified functions' bodies, along with the signatures of other functions and type definitions.
--   `AddOrEditFunction`: Adds a new function to a Go file or edits an existing function.
+        -   (string): Code of the specified functions or file excerpts as a string.
+    -   **Description:** Reads function code, or relevant file snippets, to support analysis and targeted editing.
+-   AddOrEditFunctionfunc: Adds a new function to a Go file or edits an existing one.
     -   **Parameters:**
-        -   `path` (string): The path to the Go file to modify.
-        -   `functionName` (string): The name of the function to add or edit.
-        -   `functionBody` (string): The complete function body to add or replace.
+        -   path (string): The Go file to modify.
+        -   functionName (string): Name of the function to add or edit.
+        -   functionBody (string): The complete function body.
     -   **Return Value:**
-        -   (map[string]any): A map containing the results of the operation. The map will contain a "results" key with the value "Function successfully added/edited". It will also contain a "lint" key with the linting results.
-    -   **Description:** This function adds a new function to a Go file or edits an existing function. It uses the `parser` and `printer` packages to parse and modify the Go code.
--   `autoImport`: Automatically adds missing imports to a Go file.
+        -   (string): Operation result as feedback.
+    -   **Description:** Uses parsing and code rewriting to safely update source files, then manages imports and formatting.
+-   autoImportfunc: Adds missing imports using goimports.
     -   **Parameters:**
-        -   `path` (string): The path to the Go file to process.
+        -   path (string): The Go file to process.
     -   **Return Value:**
         -   (none)
-    -   **Description:** This function automatically adds missing imports to a Go file using `goimports`.
+    -   **Description:** Ensures import statements match the code's needs.
 
 ## Code Manipulation
 
-The functions in this file allow the agent to automatically fix linting errors, add new functions, and modify existing functions. This is crucial for the agent's ability to implement new features and fix bugs.
+These functions are critical for enabling the agent to refactor, generate, and correct code automatically and safely within the Go codebase.

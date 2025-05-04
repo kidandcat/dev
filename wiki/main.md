@@ -1,12 +1,12 @@
 # main.go
 
-This is the main entry point of the application. It initializes the agent and starts the main loop.
+This is the main entry point of the application. It initializes core state and launches the main task loop.
 
 ## Functions
 
--   mainfunc: The main function.
--   ArePendingTodosfunc: Checks if there are pending todos.
+- mainfunc: Initializes the agent and starts the execution loop.
+- ArePendingTodosfunc: Checks for uncompleted tasks in the environment.
 
 ## Main Loop
 
-The main loop continuously monitors the environment for tasks and executes them using the agent's capabilities.
+Continuously evaluates outstanding checklist tasks and initiates action using available agent functions and tools.

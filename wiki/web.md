@@ -1,16 +1,16 @@
 # web.go
 
-This file contains functions for interacting with the web. These functions allow the agent to visit web pages and search for information online.
+This file contains functions for interacting with the web.
 
 ## Types
 
--   `WebSearchResult`: Represents a web search result.
+- WebSearchResult: Represents a web search result (position, title, link, snippet).
 
 ## Functions
 
--   `WebSourcefunc`: Visits a web page and returns the source HTML.
--   `WebSearchfunc`: Searches the web for a query.
+- WebSourcefunc: Fetches the raw HTML of a web page given a URL.
+- WebSearchfunc: Performs a web search with a given query string and returns structured results.
 
-## Web Interaction
+## Usage
 
-The functions in this file provide the agent with the ability to access and process information from the web. This is useful for tasks such as gathering information and performing research.
+These web interaction functions enhance the agent's ability to fetch and contextualize data from online sources as part of autonomous operations.

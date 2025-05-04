@@ -1,1 +1,0 @@
-Improve the look and feel of the landing page in "docs" folder

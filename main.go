@@ -32,12 +32,7 @@ func main() {
 		}
 	}
 
-	var err error
 	client = openai.NewClient(os.Getenv("OPENAI_API_KEY"))
-	if err != nil {
-		fmt.Printf("Error creating client: %s", err)
-		os.Exit(1)
-	}
 
 	if _, err := os.Stat(filepath.Join(workingDirectory, "INPUT.md")); os.IsNotExist(err) {
 		fmt.Printf("Input file INPUT.md does not exist in the working directory %s", workingDirectory)
@@ -101,10 +96,6 @@ func main() {
 		// Erase the INPUT.md file
 		if err := os.WriteFile(filepath.Join(workingDirectory, "INPUT.md"), []byte{}, 0644); err != nil {
 			fmt.Printf("Error erasing INPUT.md: %s", err)
-		}
-		// Erase the TASKS.md file
-		if err := os.WriteFile(filepath.Join(workingDirectory, "TASKS.md"), []byte{}, 0644); err != nil {
-			fmt.Printf("Error erasing TASKS.md: %s", err)
 		}
 		break
 	}
