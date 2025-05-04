@@ -50,11 +50,9 @@ func (g *Gitignore) IsIgnored(path string) bool {
 	return false
 }
 
-func ListDirectory(path string, depth int) map[string]any {
+func ListDirectory(path string, depth int) string {
 	if depth < 0 {
-		return map[string]any{
-			"error": "Depth cannot be negative",
-		}
+		return "Depth cannot be negative"
 	}
 
 	path = Path(path)
@@ -65,9 +63,7 @@ func ListDirectory(path string, depth int) map[string]any {
 
 	files, err := os.ReadDir(path)
 	if err != nil {
-		return map[string]any{
-			"error": fmt.Sprintf("Error reading directory: %v", err),
-		}
+		return fmt.Sprintf("Error reading directory: %v", err)
 	}
 
 	var fileNames []string
@@ -88,33 +84,26 @@ func ListDirectory(path string, depth int) map[string]any {
 		if file.IsDir() && depth > 1 {
 			subPath := filepath.Join(path, file.Name())
 			subFiles := ListDirectory(subPath, depth-1)
-			if subFiles["error"] != "Empty directory" {
-				if subFiles["files"] != nil {
-					subFileList := subFiles["files"].([]string)
-					for _, subFile := range subFileList {
-						fileNames = append(fileNames, filepath.Join(relativePath, subFile))
-					}
-				}
+			if subFiles == "Empty directory" {
+				continue
+			}
+			subFileList := strings.Split(subFiles, "\n")
+			for _, subFile := range subFileList {
+				fileNames = append(fileNames, filepath.Join(relativePath, subFile))
 			}
 		}
 	}
 
 	if len(fileNames) == 0 {
-		return map[string]any{
-			"error": "Empty directory",
-		}
+		return "Empty directory"
 	}
 
-	return map[string]any{
-		"files": fileNames,
-	}
+	return strings.Join(fileNames, "\n")
 }
 
-func ReadFile(path string, offset int, length int) map[string]any {
+func ReadFile(path string, offset int, length int) string {
 	if length > 1000 {
-		return map[string]any{
-			"error": "Cannot read more than 1000 lines",
-		}
+		return "Cannot read more than 1000 lines"
 	}
 
 	if length == 0 {
@@ -125,24 +114,18 @@ func ReadFile(path string, offset int, length int) map[string]any {
 
 	// Reject if path points to a Go file
 	if strings.HasSuffix(path, ".go") {
-		return map[string]any{
-			"error": "Cannot read Go files directly. Use code functions instead.",
-		}
+		return "Cannot read Go files directly. Use code functions instead."
 	}
 
 	content, err := os.ReadFile(path)
 	if err != nil {
-		return map[string]any{
-			"error": fmt.Sprintf("Error reading file: %v", err),
-		}
+		return fmt.Sprintf("Error reading file: %v", err)
 	}
 	text := string(content)
 	lines := strings.Split(text, "\n")
 
 	if offset > len(lines) {
-		return map[string]any{
-			"error": fmt.Sprintf("File has %d lines, cannot read line %d", len(lines), offset),
-		}
+		return fmt.Sprintf("File has %d lines, cannot read line %d", len(lines), offset)
 	}
 
 	var res string
@@ -152,16 +135,12 @@ func ReadFile(path string, offset int, length int) map[string]any {
 		res = strings.Join(lines[offset:offset+length], "\n")
 	}
 	if res == "" {
-		return map[string]any{
-			"error": "Empty file",
-		}
+		return "Empty file"
 	}
-	return map[string]any{
-		"content": res,
-	}
+	return res
 }
 
-func WriteFile(path string, content string) map[string]any {
+func WriteFile(path string, content string) string {
 	path = Path(path)
 
 	// Check if content contains partial patch markers
@@ -174,9 +153,7 @@ func WriteFile(path string, content string) map[string]any {
 		// Read existing file content
 		existingContent, err := os.ReadFile(path)
 		if err != nil && !os.IsNotExist(err) {
-			return map[string]any{
-				"error": fmt.Sprintf("Error reading existing file: %v", err),
-			}
+			return fmt.Sprintf("Error reading existing file: %v", err)
 		}
 
 		// If file doesn't exist, treat as new file
@@ -185,9 +162,7 @@ func WriteFile(path string, content string) map[string]any {
 		} else {
 			// Reject if path points to a Go file
 			if strings.HasSuffix(path, ".go") {
-				return map[string]any{
-					"error": "Cannot write to existing Go files directly. Use code functions instead.",
-				}
+				return "Cannot write to existing Go files directly. Use code functions instead."
 			}
 
 			// Split content into lines for processing
@@ -217,39 +192,27 @@ func WriteFile(path string, content string) map[string]any {
 
 	err := os.WriteFile(path, []byte(finalContent), 0644)
 	if err != nil {
-		return map[string]any{
-			"error": fmt.Sprintf("Error writing to file: %v", err),
-		}
+		return fmt.Sprintf("Error writing to file: %v", err)
 	}
 
-	return map[string]any{
-		"path":    path,
-		"content": finalContent,
-		"lint":    Lint(path),
-	}
+	return fmt.Sprintf("File written: %s", path)
 }
 
-func MkDir(path string) map[string]any {
+func MkDir(path string) string {
 	path = Path(path)
 
 	err := os.MkdirAll(path, 0755)
 	if err != nil {
-		return map[string]any{
-			"error": fmt.Sprintf("Error creating directory: %v", err),
-		}
+		return fmt.Sprintf("Error creating directory: %v", err)
 	}
-	return map[string]any{
-		"path": path,
-	}
+	return fmt.Sprintf("Directory created: %s", path)
 }
 
-func FetchWikiDocs() map[string]any {
+func FetchWikiDocs() string {
 	wikiPath := "wiki"
 	files, err := os.ReadDir(wikiPath)
 	if err != nil {
-		return map[string]any{
-			"error": fmt.Sprintf("Error reading wiki directory: %v", err),
-		}
+		return fmt.Sprintf("Error reading wiki directory: %v", err)
 	}
 
 	var docs []string
@@ -264,27 +227,21 @@ func FetchWikiDocs() map[string]any {
 		}
 	}
 	if len(docs) == 0 {
-		return map[string]any{
-			"error": "No Markdown files found in wiki.",
-		}
+		return "No Markdown files found in wiki."
 	}
-	return map[string]any{
-		"results": strings.Join(docs, "\n\n---\n\n"),
-	}
+	return strings.Join(docs, "\n\n---\n\n")
 }
 
-func SearchText(query string) map[string]any {
+func SearchText(query string) string {
 	return searchTextRecursive(workingDirectory, query)
 }
 
-func searchTextRecursive(dir string, query string) map[string]any {
+func searchTextRecursive(dir string, query string) string {
 	dir = Path(dir)
 
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return map[string]any{
-			"error": fmt.Sprintf("Error reading directory: %v", err),
-		}
+		return fmt.Sprintf("Error reading directory: %v", err)
 	}
 
 	var results []string
@@ -294,11 +251,9 @@ func searchTextRecursive(dir string, query string) map[string]any {
 		if file.IsDir() {
 			// Recursively search subdirectories
 			subResults := searchTextRecursive(filePath, query)
-			if subResults["error"] != "No results found" {
-				if subResults["results"] != nil {
-					subResultsList := subResults["results"].([]string)
-					results = append(results, subResultsList...)
-				}
+			if subResults != "No results found" {
+				subResultsList := strings.Split(subResults, "\n")
+				results = append(results, subResultsList...)
 			}
 			continue
 		}
@@ -321,13 +276,9 @@ func searchTextRecursive(dir string, query string) map[string]any {
 	}
 
 	if len(results) == 0 {
-		return map[string]any{
-			"error": "No results found",
-		}
+		return "No results found"
 	}
-	return map[string]any{
-		"results": results,
-	}
+	return strings.Join(results, "\n")
 }
 
 func Path(path string) string {
