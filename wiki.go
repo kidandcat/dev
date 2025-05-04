@@ -5,7 +5,7 @@ import (
 )
 
 func GenWiki() {
-	handleChatCompletion(MODEL_BIG, openai.ChatCompletionMessage{
+	handleChatCompletion(MODEL, openai.ChatCompletionMessage{
 		Role: "user",
 		Content: `
 		1. Analyze the code in the current directory and generate high level documentation for the code.

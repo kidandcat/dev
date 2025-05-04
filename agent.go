@@ -11,8 +11,7 @@ import (
 )
 
 const (
-	MODEL_BIG   = "gpt-4.1-2025-04-14"
-	MODEL_SMALL = "gpt-4.1-nano-2025-04-14"
+	MODEL = "qwen3"
 )
 
 var messages []openai.ChatCompletionMessage
@@ -85,7 +84,7 @@ func YesNoQuestion(question string) bool {
 	response, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: MODEL_SMALL,
+			Model: MODEL,
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    "system",

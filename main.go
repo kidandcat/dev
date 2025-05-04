@@ -32,7 +32,9 @@ func main() {
 		}
 	}
 
-	client = openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+	config := openai.DefaultConfig(os.Getenv("OPENAI_API_KEY"))
+	config.BaseURL = "http://localhost:11434/v1"
+	client = openai.NewClientWithConfig(config)
 
 	if _, err := os.Stat(filepath.Join(workingDirectory, "INPUT.md")); os.IsNotExist(err) {
 		fmt.Printf("Input file INPUT.md does not exist in the working directory %s", workingDirectory)
@@ -44,13 +46,13 @@ func main() {
 		os.Create(filepath.Join(workingDirectory, "TASKS.md"))
 	}
 
-	handleChatCompletion(MODEL_BIG, openai.ChatCompletionMessage{
+	handleChatCompletion(MODEL, openai.ChatCompletionMessage{
 		Role:    "user",
 		Content: "Open a file called INPUT.md and read the content. Process the content of the INPUT.md file into independent, small tasks and add them to the markdown checklist in the TASKS.md file.",
 	})
 
 	for {
-		response := handleChatCompletion(MODEL_SMALL, openai.ChatCompletionMessage{
+		response := handleChatCompletion(MODEL, openai.ChatCompletionMessage{
 			Role: "user",
 			Content: `
 			Read the TASKS.md file and do the next task.
@@ -83,7 +85,7 @@ func main() {
 				fmt.Printf("Error running git diff: %s", err)
 				os.Exit(1)
 			}
-			handleChatCompletion(MODEL_SMALL, openai.ChatCompletionMessage{
+			handleChatCompletion(MODEL, openai.ChatCompletionMessage{
 				Role: "user",
 				Content: fmt.Sprintf(`
 					Create tasks in the TASKS.md file to implement the missing functionality based on the TODOs, placeholders, etc. in the following git diff:
