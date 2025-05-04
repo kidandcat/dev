@@ -60,7 +60,7 @@ func main() {
 		os.Create(filepath.Join(workingDirectory, "TASKS.md"))
 	}
 
-	handleChatCompletion(MODEL_BIG, &genai.Content{
+	handleChatCompletion(MODEL, &genai.Content{
 		Role: genai.RoleUser,
 		Parts: []*genai.Part{
 			genai.NewPartFromText(`
@@ -73,7 +73,7 @@ func main() {
 	})
 
 	for {
-		response := handleChatCompletion(MODEL_BIG, &genai.Content{
+		response := handleChatCompletion(MODEL, &genai.Content{
 			Role: genai.RoleUser,
 			Parts: []*genai.Part{
 				genai.NewPartFromText(`
@@ -108,7 +108,7 @@ func main() {
 				fmt.Printf("Error running git diff: %s", err)
 				os.Exit(1)
 			}
-			handleChatCompletion(MODEL_BIG, &genai.Content{
+			handleChatCompletion(MODEL, &genai.Content{
 				Role: genai.RoleUser,
 				Parts: []*genai.Part{
 					genai.NewPartFromText(fmt.Sprintf(`

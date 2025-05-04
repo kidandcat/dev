@@ -10,12 +10,7 @@ import (
 )
 
 const (
-	// MODEL_BIG   = shared.ChatModel("gpt-4.1-2025-04-14")
-	// MODEL_SMALL = shared.ChatModel("gpt-4.1-nano-2025-04-14")
-
-	// MODEL_EXPENSIVE = "gemini-2.5-pro-preview-03-25"
-	MODEL_BIG   = "gemini-2.0-flash"
-	MODEL_SMALL = "gemini-2.0-flash-lite"
+	MODEL = "gemini-2.0-flash"
 )
 
 var messages []*genai.Content
@@ -79,7 +74,7 @@ func handleToolCall(toolCall *genai.FunctionCall) *genai.Part {
 func YesNoQuestion(question string) bool {
 	response, err := client.Models.GenerateContent(
 		context.Background(),
-		MODEL_BIG,
+		MODEL,
 		[]*genai.Content{
 			genai.NewContentFromText(question, genai.RoleUser),
 		},
