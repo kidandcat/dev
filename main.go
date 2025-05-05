@@ -32,7 +32,12 @@ func main() {
 		}
 	}
 
-	config := openai.DefaultConfig(os.Getenv("OPENROUTER_API_KEY"))
+	key := os.Getenv("OPENROUTER_API_KEY")
+	if key == "" {
+		fmt.Printf("OPENROUTER_API_KEY is not set")
+		os.Exit(1)
+	}
+	config := openai.DefaultConfig(key)
 	config.BaseURL = "https://openrouter.ai/api/v1"
 	client = openai.NewClientWithConfig(config)
 

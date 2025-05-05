@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	MODEL = "x-ai/grok-3-mini-beta"
-	// MODEL = "anthropic/claude-3.5-haiku"
+	// MODEL = "x-ai/grok-3-mini-beta"
+	MODEL = "anthropic/claude-3.5-haiku"
 )
 
 var messages []openai.ChatCompletionMessage
@@ -36,7 +36,7 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string
 					You are an autonomous, unsupervised agent that can write Go code, fix bugs, and implement features.
 					You have tools to analyze the local codebase, search the web, and more.
 					
-				Date and time: %s
+					Date and time: %s
 					`, time.Now().Format(time.RFC3339)),
 				},
 			}, messages...),
@@ -52,13 +52,13 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string
 		panic(err)
 	}
 
+	if len(response.Choices) == 0 || (response.Choices[0].Message.Content == "" && response.Choices[0].Message.ToolCalls == nil) {
+		panic(fmt.Sprintf("No response from assistant: %+v", response))
+	}
+
 	messages = append(messages, response.Choices[0].Message)
 	if response.Choices[0].Message.Content != "" {
 		log.Printf("Assistant: %s", response.Choices[0].Message.Content)
-	}
-
-	if response.Choices[0].Message.Content == "" && response.Choices[0].Message.ToolCalls == nil {
-		return "Error: No response from assistant"
 	}
 
 	for _, toolCall := range response.Choices[0].Message.ToolCalls {
