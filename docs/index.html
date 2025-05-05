@@ -3,41 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Autonomous Agent</title>
+  <title>Autonomous Agent - AI Product</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
-  <header class="bg-gradient-to-r from-blue-600 to-indigo-700 py-8 shadow-md">
-    <div class="max-w-3xl mx-auto">
-      <h1 class="text-4xl font-extrabold text-white text-center mb-2">Autonomous Agent</h1>
-      <p class="text-lg text-white text-center opacity-90">An autonomous, unsupervised agent that can write Go code, fix bugs, and implement features.</p>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+  <header class="bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-600 py-12 shadow-lg">
+    <div class="max-w-5xl mx-auto px-6">
+      <h1 class="text-5xl font-extrabold text-white text-center mb-4">Autonomous Agent</h1>
+      <p class="text-xl text-indigo-200 text-center max-w-3xl mx-auto">An advanced autonomous, unsupervised AI agent that writes Go code, fixes bugs, and implements features seamlessly.</p>
     </div>
   </header>
-  <main class="flex-1 flex justify-center items-start mt-10">
-    <section class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Available Tools</h2>
-      <div class="space-y-5">
-        <div class="bg-blue-50 border-l-4 border-blue-400 px-5 py-3 rounded">
-          <span class="font-semibold text-blue-900">File System:</span>
-          <span class="text-gray-700">List directory, Read file, Write file, Make directory, Search text</span>
+
+  <main class="flex-grow flex flex-col justify-center py-16 px-6 max-w-5xl mx-auto">
+    <section class="mb-16 bg-white rounded-xl shadow-xl p-10">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b border-gray-300 pb-2">What is Autonomous Agent?</h2>
+      <p class="text-gray-700 leading-relaxed text-lg mb-4">Autonomous Agent is a revolutionary AI product designed to automate complex software development tasks. Powered by cutting-edge AI technology, it can autonomously write, debug, and enhance Go code without supervision, improving productivity and software quality.</p>
+      <p class="text-gray-700 leading-relaxed text-lg">It leverages the Gemini API for decision-making, tool execution, and continuous learning from its environment to evolve and adapt.</p>
+    </section>
+
+    <section class="mb-16 bg-white rounded-xl shadow-xl p-10">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b border-gray-300 pb-2">Key Features</h2>
+      <ul class="list-disc list-inside space-y-3 text-gray-700 text-lg">
+        <li>Autonomous code generation and bug fixing in Go.</li>
+        <li>Integration with Gemini API for enhanced AI interactions.</li>
+        <li>Smart tool selection for efficient task execution.</li>
+        <li>Unsupervised operation with adaptive learning capabilities.</li>
+        <li>Seamless file system interaction and source code management.</li>
+      </ul>
+    </section>
+
+    <section class="mb-16 bg-white rounded-xl shadow-xl p-10">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b border-gray-300 pb-2">How It Works</h2>
+      <p class="text-gray-700 leading-relaxed text-lg mb-4">The Autonomous Agent operates by maintaining a conversation history used for context and decision making. It utilizes the Gemini API calls to interact with various tools like reading and writing files, linting code, and more.</p>
+      <p class="text-gray-700 leading-relaxed text-lg">This approach allows the agent to act intelligently and independently, performing complex tasks such as understanding code context, fixing bugs, and implementing new features automatically.</p>
+    </section>
+
+    <section class="mb-16 bg-white rounded-xl shadow-xl p-10">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b border-gray-300 pb-2">Detailed Project Wiki</h2>
+      <article class="prose max-w-none text-gray-800">
+        <h3>Agent Core (agent.go)</h3>
+        <p>This component defines the autonomous agent's core logic and interaction with the environment. It is responsible for decision-making, tool selection, and communication with the Gemini API.</p>
+        <ul>
+          <li><strong>Constants:</strong> Defines model parameters such as MODEL_BIG and MODEL_SMALL.</li>
+          <li><strong>Variables:</strong> Conversation history, working directory, and response temperature settings.</li>
+          <li><strong>Functions:</strong> 
+            <ul>
+              <li><em>handleChatCompletion:</em> Manages chat interactions with the Gemini API.</li>
+              <li><em>handleToolCall:</em> Executes tool calls for environment interaction.</li>
+              <li><em>YesNoQuestion:</em> Facilitates yes/no queries with enforced responses.</li>
+            </ul>
+          </li>
+        </ul>
+        <h3>Code Manipulation (code.go)</h3>
+        <p>This module contains tools for reading, linting, and modifying Go code, critical for the agent's ability to maintain and extend the codebase.</p>
+        <ul>
+          <li><strong>Linting:</strong> Automatic code quality checks and fixes.</li>
+          <li><strong>Code Reading:</strong> Extract specific function implementations.</li>
+          <li><strong>Function Editing:</strong> Add or modify functions programmatically.</li>
+        </ul>
+        <h3>File System Interaction (file.go)</h3>
+        <p>Provides file and directory manipulation abilities including reading, writing, directory listing, and gitignore-aware filtering.</p>
+        <ul>
+          <li><strong>Gitignore Handling:</strong> Understands and respects .gitignore patterns.</li>
+          <li><strong>File Operations:</strong> Read, write, create directories, and search file content.</li>
+        </ul>
+        <h3>Web Interaction (web.go)</h3>
+        <p>Enables web page visits and searches as part of the agent's research and information gathering capabilities.</p>
+        <h3>Wiki Generation (wiki.go)</h3>
+        <p>Supports generating and updating project documentation to keep it accurate and comprehensive.</p>
+      </article>
+    </section>
+
+    <section class="mb-16 bg-white rounded-xl shadow-xl p-10">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b border-gray-300 pb-2">Available Tools</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-purple-50 border-l-4 border-purple-400 px-5 py-3 rounded">
+          <h3 class="font-semibold text-purple-900 mb-1">File System</h3>
+          <p class="text-gray-700">List directories, Read & write files, Create directories, Search text</p>
         </div>
         <div class="bg-green-50 border-l-4 border-green-400 px-5 py-3 rounded">
-          <span class="font-semibold text-green-900">Code:</span>
-          <span class="text-gray-700">Lint file, Read code, Add or edit function</span>
+          <h3 class="font-semibold text-green-900 mb-1">Code Manipulation</h3>
+          <p class="text-gray-700">Lint files, Read specific functions, Add or edit functions</p>
         </div>
         <div class="bg-yellow-50 border-l-4 border-yellow-400 px-5 py-3 rounded">
-          <span class="font-semibold text-yellow-900">Web:</span>
-          <span class="text-gray-700">Visit web page, Web search</span>
+          <h3 class="font-semibold text-yellow-900 mb-1">Web Interaction</h3>
+          <p class="text-gray-700">Visit web pages, Web search</p>
         </div>
-        <div class="bg-purple-50 border-l-4 border-purple-400 px-5 py-3 rounded">
-          <span class="font-semibold text-purple-900">Wiki:</span>
-          <span class="text-gray-700">Fetch wiki docs</span>
+        <div class="bg-blue-50 border-l-4 border-blue-400 px-5 py-3 rounded">
+          <h3 class="font-semibold text-blue-900 mb-1">Wiki</h3>
+          <p class="text-gray-700">Fetch detailed documentation</p>
         </div>
       </div>
     </section>
   </main>
-  <footer class="mt-16 py-6 bg-gray-100 text-center text-gray-500 text-sm border-t">
-    © 2025 Autonomous Agent Docs
+
+  <footer class="bg-gray-800 py-6 text-center text-gray-300 text-sm">
+    © 2025 Autonomous Agent. All rights reserved.
   </footer>
 </body>
 </html>
