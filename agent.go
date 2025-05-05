@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	// MODEL = "google/gemini-2.0-flash-001"
-	// MODEL = "x-ai/grok-3-mini-beta"
-	MODEL = "anthropic/claude-3.5-haiku"
+	// MODEL = "google/gemini-2.5-flash-preview"
+	MODEL = "openai/gpt-4.1"
+	// MODEL = "deepseek/deepseek-chat-v3-0324"
 )
 
 var messages []openai.ChatCompletionMessage
@@ -35,7 +35,7 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string
 					Role: openai.ChatMessageRoleSystem,
 					Content: fmt.Sprintf(`
 					You are an autonomous, unsupervised agent that can write Go code, fix bugs, and implement features.
-					You have tools to analyze the local codebase, search the web, and more.
+					You have tools to write code, search the web, and more.
 					
 					Date and time: %s
 					`, time.Now().Format(time.RFC3339)),
