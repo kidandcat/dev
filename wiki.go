@@ -3,7 +3,7 @@ package main
 import "github.com/sashabaranov/go-openai"
 
 func GenWiki() {
-	handleChatCompletion(MODEL, openai.ChatCompletionMessage{
+	handleChatCompletion(openai.ChatCompletionMessage{
 		Role: openai.ChatMessageRoleUser,
 		Content: `
 			1. Analyze the code in the current directory and generate high level documentation for the code.

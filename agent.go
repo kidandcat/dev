@@ -2,24 +2,21 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/sashabaranov/go-openai"
 )
 
 const (
-	// MODEL = "google/gemini-2.5-flash-preview"
-	MODEL = "openai/gpt-4.1"
-	// MODEL = "deepseek/deepseek-chat-v3-0324"
+	// MODEL = "anthropic/claude-3.7-sonnet"
+	MODEL = "openai/gpt-4o-mini"
 )
 
 var messages []openai.ChatCompletionMessage
 var workingDirectory string
 
-func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string {
+func handleChatCompletion(msg openai.ChatCompletionMessage) string {
 	messages = append(messages, msg)
 
 	if len(messages) > 10 {
@@ -29,19 +26,9 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string
 	response, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: model,
-			Messages: append([]openai.ChatCompletionMessage{
-				{
-					Role: openai.ChatMessageRoleSystem,
-					Content: fmt.Sprintf(`
-					You are an autonomous, unsupervised agent that can write Go code, fix bugs, and implement features.
-					You have tools to write code, search the web, and more.
-					
-					Date and time: %s
-					`, time.Now().Format(time.RFC3339)),
-				},
-			}, messages...),
-			Tools: GetTools(),
+			Model:    MODEL,
+			Messages: messages,
+			Tools:    GetTools(),
 		},
 	)
 	if err != nil {
@@ -68,7 +55,7 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string
 			return "Finished all tasks"
 		}
 		if toolCall == response.Choices[0].Message.ToolCalls[len(response.Choices[0].Message.ToolCalls)-1] {
-			return handleChatCompletion(model, handleToolCall(toolCall))
+			return handleChatCompletion(handleToolCall(toolCall))
 		}
 		messages = append(messages, handleToolCall(toolCall))
 	}
@@ -121,6 +108,11 @@ func YesNoQuestion(question string) bool {
 		},
 	)
 	if err != nil {
+		log.Printf("Error in YesNoQuestion: %s", err)
+		return false
+	}
+	if len(response.Choices) == 0 || len(response.Choices[0].Message.ToolCalls) == 0 {
+		log.Printf("No response from assistant: %+v", response)
 		return false
 	}
 	if response.Choices[0].Message.ToolCalls[0].Function.Name == "yes" {

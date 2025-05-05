@@ -53,7 +53,7 @@ func main() {
 
 	// GenWiki()
 
-	handleChatCompletion(MODEL, openai.ChatCompletionMessage{
+	handleChatCompletion(openai.ChatCompletionMessage{
 		Role: openai.ChatMessageRoleUser,
 		Content: `
 			Open a file called INPUT.md and read the content.
@@ -64,7 +64,7 @@ func main() {
 	})
 
 	for {
-		response := handleChatCompletion(MODEL, openai.ChatCompletionMessage{
+		response := handleChatCompletion(openai.ChatCompletionMessage{
 			Role: openai.ChatMessageRoleUser,
 			Content: `
 				Read the TASKS.md file and do the next task.
@@ -97,7 +97,7 @@ func main() {
 				fmt.Printf("Error running git diff: %s", err)
 				os.Exit(1)
 			}
-			handleChatCompletion(MODEL, openai.ChatCompletionMessage{
+			handleChatCompletion(openai.ChatCompletionMessage{
 				Role: openai.ChatMessageRoleUser,
 				Content: fmt.Sprintf(`
 					Create tasks in the TASKS.md file to implement the missing functionality based on the TODOs, placeholders, etc. in the following git diff:
