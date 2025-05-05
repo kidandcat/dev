@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -81,5 +82,43 @@ func TestListDirectory(t *testing.T) {
 				t.Errorf("ListDirectory(%q, %d) = %q, want %q", tt.path, tt.depth, result, tt.expected)
 			}
 		})
+	}
+}
+
+func TestWriteFile(t *testing.T) {
+	// Create a temporary directory for testing
+	tempDir := t.TempDir()
+
+	// Test writing to a new file
+	testFile := filepath.Join(tempDir, "test.txt")
+	content := "Hello, World!"
+	result := WriteFile(testFile, content)
+	if !strings.Contains(result, "New content:") {
+		t.Errorf("Expected WriteFile to return success message, got: %s", result)
+	}
+
+	// Verify the content was written
+	readContent, err := os.ReadFile(testFile)
+	if err != nil {
+		t.Fatalf("Failed to read test file: %v", err)
+	}
+	if string(readContent) != content {
+		t.Errorf("Expected file content to be '%s', got: '%s'", content, string(readContent))
+	}
+
+	// Test writing with partial patch markers to an existing file
+	patchContent := "Updated content\n// ... existing code ..."
+	result = WriteFile(testFile, patchContent)
+	if !strings.Contains(result, "New content:") {
+		t.Errorf("Expected WriteFile with patch to return success message, got: %s", result)
+	}
+
+	// Verify the updated content
+	readContent, err = os.ReadFile(testFile)
+	if err != nil {
+		t.Fatalf("Failed to read updated test file: %v", err)
+	}
+	if !strings.HasPrefix(string(readContent), "Updated content") {
+		t.Errorf("Expected updated file content to start with 'Updated content', got: '%s'", string(readContent))
 	}
 }
