@@ -180,8 +180,8 @@ func GetTools() []openai.Tool {
 		{
 			Type: openai.ToolTypeFunction,
 			Function: &openai.FunctionDefinition{
-				Name:        "continue",
-				Description: "Continue with the next task",
+				Name:        "finished",
+				Description: "Finished all tasks",
 			},
 		},
 		{

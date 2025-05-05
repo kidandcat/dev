@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	MODEL = "google/gemini-2.0-flash-001"
+	// MODEL = "google/gemini-2.0-flash-001"
 	// MODEL = "x-ai/grok-3-mini-beta"
-	// MODEL = "anthropic/claude-3.5-haiku"
+	MODEL = "anthropic/claude-3.5-haiku"
 )
 
 var messages []openai.ChatCompletionMessage
@@ -63,8 +63,8 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string
 	}
 
 	for _, toolCall := range response.Choices[0].Message.ToolCalls {
-		if toolCall.Function.Name == "continue" {
-			return "Continue"
+		if toolCall.Function.Name == "finished" {
+			return "Finished all tasks"
 		}
 		if toolCall == response.Choices[0].Message.ToolCalls[len(response.Choices[0].Message.ToolCalls)-1] {
 			return handleChatCompletion(model, handleToolCall(toolCall))
