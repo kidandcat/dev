@@ -69,9 +69,6 @@ func main() {
 			Content: `
 				Read the TASKS.md file and do the next task.
 				After each task, update the TASKS.md file to reflect the changes.
-
-				Do not leave TODOs, placeholders, etc. Fill in all the details.
-				If you cannot continue, create a new task in the TASKS.md file.
 			`,
 		})
 		tasks, err := os.ReadFile(filepath.Join(workingDirectory, "TASKS.md"))
