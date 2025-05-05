@@ -65,21 +65,24 @@ func main() {
 
 	for {
 		messages = nil
-		response := handleChatCompletion(openai.ChatCompletionMessage{
-			Role: openai.ChatMessageRoleUser,
-			Content: `
-				Read the TASKS.md file and do the next task.
-				After each task, update the TASKS.md file to reflect the changes.
-			`,
-		})
-		if response == "no_response" {
-			log.Printf("No response from assistant, finishing")
-			break
-		}
 		tasks, err := os.ReadFile(filepath.Join(workingDirectory, "TASKS.md"))
 		if err != nil {
 			fmt.Printf("Error reading TASKS.md: %s", err)
 			os.Exit(1)
+		}
+		response := handleChatCompletion(openai.ChatCompletionMessage{
+			Role: openai.ChatMessageRoleUser,
+			Content: fmt.Sprintf(`
+				Do the next task.
+				After each task, update the TASKS.md file to reflect the changes.
+
+				TASKS:
+				%s
+			`, string(tasks)),
+		})
+		if response == "no_response" {
+			log.Printf("No response from assistant, finishing")
+			break
 		}
 		if !YesNoQuestion(fmt.Sprintf(`Has all the tasks been completed?
 		
