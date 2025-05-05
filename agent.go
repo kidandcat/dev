@@ -10,10 +10,9 @@ import (
 )
 
 const (
-	MODEL = "x-ai/grok-3-beta"
+	MODEL = "openai/gpt-4.1-mini"
 	// MODEL = "google/gemini-2.5-flash-preview"
 	// MODEL = "anthropic/claude-3.7-sonnet"
-	// MODEL = "openai/gpt-4o-mini"
 )
 
 var messages []openai.ChatCompletionMessage
