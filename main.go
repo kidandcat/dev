@@ -51,6 +51,8 @@ func main() {
 		os.Create(filepath.Join(workingDirectory, "TASKS.md"))
 	}
 
+	// GenWiki()
+
 	handleChatCompletion(MODEL, openai.ChatCompletionMessage{
 		Role: openai.ChatMessageRoleUser,
 		Content: `
@@ -107,16 +109,9 @@ func main() {
 			log.Printf("There are pending todos, continuing")
 			continue
 		}
-		// Finished all tasks, no pending todos
-		log.Printf("No more tasks, no pending todos, generating wiki")
-		GenWiki()
 		// Erase the INPUT.md file
 		if err := os.WriteFile(filepath.Join(workingDirectory, "INPUT.md"), []byte{}, 0644); err != nil {
 			fmt.Printf("Error erasing INPUT.md: %s", err)
-		}
-		// Erase the TASKS.md file
-		if err := os.WriteFile(filepath.Join(workingDirectory, "TASKS.md"), []byte{}, 0644); err != nil {
-			fmt.Printf("Error erasing TASKS.md: %s", err)
 		}
 		break
 	}
