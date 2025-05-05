@@ -4,98 +4,110 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
-	"google.golang.org/genai"
+	"github.com/sashabaranov/go-openai"
 )
 
 const (
-	MODEL = "gemini-2.0-flash"
+	MODEL = "x-ai/grok-3-mini-beta"
+	// MODEL = "anthropic/claude-3.5-haiku"
 )
 
-var messages []*genai.Content
+var messages []openai.ChatCompletionMessage
 var workingDirectory string
-var temperature float32 = 0.7
 
-func handleChatCompletion(model string, msg *genai.Content) string {
+func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string {
 	messages = append(messages, msg)
 
 	if len(messages) > 10 {
 		messages = messages[len(messages)-10:]
 	}
 
-	response, err := client.Models.GenerateContent(
+	response, err := client.CreateChatCompletion(
 		context.Background(),
-		model,
-		messages,
-		&genai.GenerateContentConfig{
-			SystemInstruction: genai.NewContentFromText(fmt.Sprintf(`
+		openai.ChatCompletionRequest{
+			Model: model,
+			Messages: append([]openai.ChatCompletionMessage{
+				{
+					Role: openai.ChatMessageRoleSystem,
+					Content: fmt.Sprintf(`
 					You are an autonomous, unsupervised agent that can write Go code, fix bugs, and implement features.
 					You have tools to analyze the local codebase, search the web, and more.
 					
-					Date and time: %s
-					`, time.Now().Format(time.RFC3339)), genai.RoleUser),
-			Temperature: &temperature,
-			Tools:       GetTools(),
+				Date and time: %s
+					`, time.Now().Format(time.RFC3339)),
+				},
+			}, messages...),
+			Tools: GetTools(),
 		},
 	)
 	if err != nil {
 		var contextLength int
 		for _, message := range messages {
-			contextLength += len(message.Parts[0].Text)
+			contextLength += len(message.Content)
 		}
 		log.Printf("Context length: %d", contextLength)
 		panic(err)
 	}
 
-	messages = append(messages, response.Candidates[0].Content)
-	if len(response.Candidates[0].Content.Parts) > 0 {
-		content := response.Candidates[0].Content.Parts[0].Text
-		log.Printf("Assistant: %s", content)
+	messages = append(messages, response.Choices[0].Message)
+	if response.Choices[0].Message.Content != "" {
+		log.Printf("Assistant: %s", response.Choices[0].Message.Content)
 	}
 
-	toolCalls := response.FunctionCalls()
-	parts := []*genai.Part{}
-	for _, toolCall := range toolCalls {
-		if toolCall.Name == "continue" {
+	for _, toolCall := range response.Choices[0].Message.ToolCalls {
+		if toolCall.Function.Name == "continue" {
 			return "Continue"
 		}
-		log.Printf("Tool call: %s", toolCall.Name)
-		parts = append(parts, handleToolCall(toolCall))
+		if toolCall == response.Choices[0].Message.ToolCalls[len(response.Choices[0].Message.ToolCalls)-1] {
+			return handleChatCompletion(model, handleToolCall(toolCall))
+		}
+		messages = append(messages, handleToolCall(toolCall))
 	}
-	if len(parts) > 0 {
-		return handleChatCompletion(model, genai.NewContentFromParts(parts, genai.RoleUser))
-	}
-
-	return messages[len(messages)-1].Parts[0].Text
+	return messages[len(messages)-1].Content
 }
 
-func handleToolCall(toolCall *genai.FunctionCall) *genai.Part {
+func handleToolCall(toolCall openai.ToolCall) openai.ChatCompletionMessage {
 	res := ToolCall(toolCall)
-	return genai.NewPartFromFunctionResponse(toolCall.Name, res)
+	return openai.ChatCompletionMessage{
+		Role:       openai.ChatMessageRoleTool,
+		Content:    res,
+		ToolCallID: toolCall.ID,
+	}
 }
 
 func YesNoQuestion(question string) bool {
-	response, err := client.Models.GenerateContent(
+	response, err := client.CreateChatCompletion(
 		context.Background(),
-		MODEL,
-		[]*genai.Content{
-			genai.NewContentFromText(question, genai.RoleUser),
-		},
-		&genai.GenerateContentConfig{
-			Temperature:       &temperature,
-			SystemInstruction: genai.NewContentFromText(`You must answer the question with a "yes" or "no" tool call.`, genai.RoleUser),
-			Tools: []*genai.Tool{
+		openai.ChatCompletionRequest{
+			Model: MODEL,
+			Messages: []openai.ChatCompletionMessage{
 				{
-					FunctionDeclarations: []*genai.FunctionDeclaration{
-						{
-							Name:        "yes",
-							Description: "Answer affirmatively",
-						},
-						{
-							Name:        "no",
-							Description: "Answer negatively",
-						},
+					Role:    "system",
+					Content: `You must answer the question with a "yes" or "no" tool call.`,
+				},
+				{
+					Role:    "user",
+					Content: question,
+				},
+			},
+			Stream:      false,
+			Temperature: 0.7,
+			Tools: []openai.Tool{
+				{
+					Type: openai.ToolTypeFunction,
+					Function: &openai.FunctionDefinition{
+						Name:        "yes",
+						Description: "Answer affirmatively",
+					},
+				},
+				{
+					Type: openai.ToolTypeFunction,
+					Function: &openai.FunctionDefinition{
+						Name:        "no",
+						Description: "Answer negatively",
 					},
 				},
 			},
@@ -104,9 +116,14 @@ func YesNoQuestion(question string) bool {
 	if err != nil {
 		return false
 	}
-	toolCalls := response.FunctionCalls()
-	if len(toolCalls) == 0 {
+	if response.Choices[0].Message.ToolCalls[0].Function.Name == "yes" {
+		return true
+	}
+	if response.Choices[0].Message.ToolCalls[0].Function.Name == "no" {
 		return false
 	}
-	return toolCalls[0].Name == "yes"
+	if strings.Contains(response.Choices[0].Message.Content, "yes") {
+		return true
+	}
+	return false
 }

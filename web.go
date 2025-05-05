@@ -9,7 +9,7 @@ import (
 	"github.com/gocolly/colly/v2"
 )
 
-func WebSource(url string, headers map[string]string, cookies map[string]string) map[string]any {
+func WebSource(url string, headers map[string]string, cookies map[string]string) string {
 	c := colly.NewCollector()
 	source := ""
 
@@ -46,9 +46,7 @@ func WebSource(url string, headers map[string]string, cookies map[string]string)
 		fmt.Println("Error:", err)
 	}
 
-	return map[string]any{
-		"source": source,
-	}
+	return source
 }
 
 type WebSearchResult struct {
@@ -58,7 +56,7 @@ type WebSearchResult struct {
 	Snippet  string
 }
 
-func WebSearch(query string) map[string]any {
+func WebSearch(query string) string {
 	c := colly.NewCollector()
 	results := []WebSearchResult{}
 
@@ -76,7 +74,5 @@ func WebSearch(query string) map[string]any {
 		fmt.Println("Error:", err)
 	}
 
-	return map[string]any{
-		"results": results,
-	}
+	return fmt.Sprintf("%+v", results)
 }
