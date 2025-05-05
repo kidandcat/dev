@@ -11,8 +11,9 @@ import (
 )
 
 const (
+	MODEL = "google/gemini-2.0-flash-001"
 	// MODEL = "x-ai/grok-3-mini-beta"
-	MODEL = "anthropic/claude-3.5-haiku"
+	// MODEL = "anthropic/claude-3.5-haiku"
 )
 
 var messages []openai.ChatCompletionMessage
