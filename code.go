@@ -55,6 +55,10 @@ func Lint(path string) string {
 // and the structs, interfaces and types in the file.
 // So, in summary, it returns the Go file but removing the body of any functions not passed in the functions parameter.
 func ReadCode(path string, functions ...string) string {
+	if !strings.HasSuffix(path, ".go") {
+		return "Error: File is not a Go file"
+	}
+
 	path = Path(path)
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -142,6 +146,10 @@ func ReadCode(path string, functions ...string) string {
 
 // This function adds a new function to the specified Go file, or edits an existing function.
 func AddOrEditFunction(path string, functionName string, functionBody string) string {
+	if !strings.HasSuffix(path, ".go") {
+		return "Error: File is not a Go file"
+	}
+
 	path = Path(path)
 	content, err := os.ReadFile(path)
 	if err != nil {

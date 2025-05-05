@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
@@ -9,6 +10,8 @@ import (
 )
 
 const (
+	// MODEL = "google/gemini-2.0-flash-001"
+	// MODEL = "google/gemini-2.5-flash-preview"
 	// MODEL = "anthropic/claude-3.7-sonnet"
 	MODEL = "openai/gpt-4o-mini"
 )
@@ -17,10 +20,6 @@ var messages []openai.ChatCompletionMessage
 var workingDirectory string
 
 func handleChatCompletion(msg openai.ChatCompletionMessage) string {
-	if len(messages) > 10 {
-		messages = messages[len(messages)-10:]
-	}
-
 	pendingMessages := []openai.ChatCompletionMessage{
 		msg,
 	}
@@ -29,6 +28,19 @@ func handleChatCompletion(msg openai.ChatCompletionMessage) string {
 		messages = append(messages, pendingMessages...)
 		pendingMessages = nil
 
+		log.Println("\n\n\n\n\nMESSAGES")
+		for _, message := range messages {
+			fmt.Println("--------------------------------")
+			content := message.Content
+			if content == "" && len(message.ToolCalls) > 0 {
+				content = message.ToolCalls[0].Function.Name
+			}
+			role := message.Role
+			if role == "tool" {
+				role = message.ToolCallID
+			}
+			fmt.Printf("%s: %s\n", role, content)
+		}
 		response, err := client.CreateChatCompletion(
 			context.Background(),
 			openai.ChatCompletionRequest{
@@ -48,7 +60,7 @@ func handleChatCompletion(msg openai.ChatCompletionMessage) string {
 
 		if len(response.Choices) == 0 || (response.Choices[0].Message.Content == "" && response.Choices[0].Message.ToolCalls == nil) {
 			log.Printf("No response from assistant: %+v\n%+v\n", response, messages)
-			break
+			return "no_response"
 		}
 
 		messages = append(messages, response.Choices[0].Message)

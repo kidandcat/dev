@@ -46,6 +46,9 @@ func WebSource(url string, headers map[string]string, cookies map[string]string)
 		fmt.Println("Error:", err)
 	}
 
+	if source == "" {
+		return "No source found"
+	}
 	return source
 }
 

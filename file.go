@@ -101,12 +101,12 @@ func ListDirectory(path string, depth int) string {
 }
 
 func ReadFile(path string, offset int, length int) string {
-	if length > 1000 {
-		return fmt.Sprintf("Cannot read more than 1000 lines")
+	if length > 10000 {
+		return "Cannot read more than 10000 lines"
 	}
 
 	if length == 0 {
-		length = 1000
+		length = 10000
 	}
 
 	path = Path(path)
