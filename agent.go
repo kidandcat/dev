@@ -17,48 +17,54 @@ var messages []openai.ChatCompletionMessage
 var workingDirectory string
 
 func handleChatCompletion(msg openai.ChatCompletionMessage) string {
-	messages = append(messages, msg)
-
 	if len(messages) > 10 {
 		messages = messages[len(messages)-10:]
 	}
 
-	response, err := client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model:    MODEL,
-			Messages: messages,
-			Tools:    GetTools(),
-		},
-	)
-	if err != nil {
-		var contextLength int
-		for _, message := range messages {
-			contextLength += len(message.Content)
+	pendingMessages := []openai.ChatCompletionMessage{
+		msg,
+	}
+
+	for len(pendingMessages) > 0 {
+		messages = append(messages, pendingMessages...)
+		pendingMessages = nil
+
+		response, err := client.CreateChatCompletion(
+			context.Background(),
+			openai.ChatCompletionRequest{
+				Model:    MODEL,
+				Messages: messages,
+				Tools:    GetTools(),
+			},
+		)
+		if err != nil {
+			var contextLength int
+			for _, message := range messages {
+				contextLength += len(message.Content)
+			}
+			log.Printf("Context length: %d", contextLength)
+			panic(err)
 		}
-		log.Printf("Context length: %d", contextLength)
-		panic(err)
-	}
 
-	if len(response.Choices) == 0 || (response.Choices[0].Message.Content == "" && response.Choices[0].Message.ToolCalls == nil) {
-		log.Fatalf("No response from assistant: %+v", response)
-	}
-
-	messages = append(messages, response.Choices[0].Message)
-	if response.Choices[0].Message.Content != "" {
-		log.Printf("Assistant: %s", response.Choices[0].Message.Content)
-	}
-
-	for _, toolCall := range response.Choices[0].Message.ToolCalls {
-		if toolCall.Function.Name == "finished" {
-			return "Finished all tasks"
+		if len(response.Choices) == 0 || (response.Choices[0].Message.Content == "" && response.Choices[0].Message.ToolCalls == nil) {
+			log.Fatalf("No response from assistant: %+v", response)
 		}
-		if toolCall == response.Choices[0].Message.ToolCalls[len(response.Choices[0].Message.ToolCalls)-1] {
-			return handleChatCompletion(handleToolCall(toolCall))
+
+		messages = append(messages, response.Choices[0].Message)
+		if response.Choices[0].Message.Content != "" {
+			log.Printf("Assistant: %s", response.Choices[0].Message.Content)
 		}
-		messages = append(messages, handleToolCall(toolCall))
+
+		toolCalls := response.Choices[0].Message.ToolCalls
+		for _, toolCall := range toolCalls {
+			if toolCall.Function.Name == "finished" {
+				return "Finished all tasks"
+			}
+			pendingMessages = append(pendingMessages, handleToolCall(toolCall))
+		}
 	}
 
+	log.Printf("Finished loop, returning last message: %s", messages[len(messages)-1].Content)
 	return messages[len(messages)-1].Content
 }
 
