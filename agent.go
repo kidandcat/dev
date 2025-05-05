@@ -57,6 +57,10 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string
 		log.Printf("Assistant: %s", response.Choices[0].Message.Content)
 	}
 
+	if response.Choices[0].Message.Content == "" && response.Choices[0].Message.ToolCalls == nil {
+		return "Error: No response from assistant"
+	}
+
 	for _, toolCall := range response.Choices[0].Message.ToolCalls {
 		if toolCall.Function.Name == "continue" {
 			return "Continue"
@@ -66,6 +70,7 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string
 		}
 		messages = append(messages, handleToolCall(toolCall))
 	}
+
 	return messages[len(messages)-1].Content
 }
 
