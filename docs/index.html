@@ -1,18 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Autonomous Agent</title>
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autonomous Agent</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-<h1>Autonomous Agent</h1>
-<p>This project implements an autonomous, unsupervised agent that can write Go code, fix bugs, and implement features.</p>
-<h2>Available Tools</h2>
-<ul>
-<li><b>File System:</b> List directory, Read file, Write file, Make directory, Search text</li>
-<li><b>Code:</b> Lint file, Read code, Add or edit function</li>
-<li><b>Web:</b> Visit web page, Web search</li>
-<li><b>Wiki:</b> Fetch wiki docs</li>
-</ul>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <header class="bg-gradient-to-r from-blue-600 to-indigo-700 py-8 shadow-md">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-4xl font-extrabold text-white text-center mb-2">Autonomous Agent</h1>
+      <p class="text-lg text-white text-center opacity-90">An autonomous, unsupervised agent that can write Go code, fix bugs, and implement features.</p>
+    </div>
+  </header>
+  <main class="flex-1 flex justify-center items-start mt-10">
+    <section class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Available Tools</h2>
+      <div class="space-y-5">
+        <div class="bg-blue-50 border-l-4 border-blue-400 px-5 py-3 rounded">
+          <span class="font-semibold text-blue-900">File System:</span>
+          <span class="text-gray-700">List directory, Read file, Write file, Make directory, Search text</span>
+        </div>
+        <div class="bg-green-50 border-l-4 border-green-400 px-5 py-3 rounded">
+          <span class="font-semibold text-green-900">Code:</span>
+          <span class="text-gray-700">Lint file, Read code, Add or edit function</span>
+        </div>
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 px-5 py-3 rounded">
+          <span class="font-semibold text-yellow-900">Web:</span>
+          <span class="text-gray-700">Visit web page, Web search</span>
+        </div>
+        <div class="bg-purple-50 border-l-4 border-purple-400 px-5 py-3 rounded">
+          <span class="font-semibold text-purple-900">Wiki:</span>
+          <span class="text-gray-700">Fetch wiki docs</span>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="mt-16 py-6 bg-gray-100 text-center text-gray-500 text-sm border-t">
+    © 2025 Autonomous Agent Docs
+  </footer>
 </body>
 </html>

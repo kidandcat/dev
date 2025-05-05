@@ -54,7 +54,8 @@ func handleChatCompletion(model string, msg openai.ChatCompletionMessage) string
 	}
 
 	if len(response.Choices) == 0 || (response.Choices[0].Message.Content == "" && response.Choices[0].Message.ToolCalls == nil) {
-		panic(fmt.Sprintf("No response from assistant: %+v", response))
+		log.Printf("No response from assistant: %+v", response)
+		return "No response from assistant"
 	}
 
 	messages = append(messages, response.Choices[0].Message)
