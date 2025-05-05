@@ -51,11 +51,12 @@ func (g *Gitignore) IsIgnored(path string) bool {
 }
 
 func ListDirectory(path string, depth int) string {
-	if depth < 0 {
+	if depth <= 0 {
 		return ""
 	}
 
 	path = Path(path)
+	basePath := path
 
 	// Look for .gitignore in the current directory
 	gitignorePath := filepath.Join(path, ".gitignore")
@@ -87,7 +88,11 @@ func ListDirectory(path string, depth int) string {
 			if subFiles != "" && subFiles != "Empty directory" {
 				subFileList := strings.Split(subFiles, "\n")
 				for _, subFile := range subFileList {
-					fileNames = append(fileNames, filepath.Join(relativePath, subFile))
+					// Get the relative path from the base path
+					relPath, err := filepath.Rel(basePath, filepath.Join(subPath, subFile))
+					if err == nil {
+						fileNames = append(fileNames, relPath)
+					}
 				}
 			}
 		}

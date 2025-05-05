@@ -91,10 +91,10 @@ func GetTools() []openai.Tool {
 						},
 						"length": {
 							Type:        jsonschema.Integer,
-							Description: "The number of lines to read",
+							Description: "The number of lines to read, leave blank for maximum number of lines (10000)",
 						},
 					},
-					Required: []string{"path", "offset", "length"},
+					Required: []string{"path"},
 				},
 			},
 		},

@@ -28,7 +28,7 @@ func handleChatCompletion(msg openai.ChatCompletionMessage) string {
 		messages = append(messages, pendingMessages...)
 		pendingMessages = nil
 
-		log.Println("\n\n\n\n\nMESSAGES")
+		log.Println("\n\n\n\n\n#########################################################################\nMESSAGES")
 		for _, message := range messages {
 			fmt.Println("--------------------------------")
 			content := message.Content
